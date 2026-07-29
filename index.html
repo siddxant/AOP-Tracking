@@ -3,169 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TETR — AOP Expense Tracker</title>
+  <title>TETR — Marketing Spend Tracker</title>
   <style>
-    /* ===== TETR DESIGN TOKENS ===== */
     :root {
       --green-900: #1B4332;
       --green-700: #2D6A4F;
       --green-100: #D1FAE5;
       --green-50:  #ECFDF5;
       --gold:      #C9A227;
-      --gold-100:  #FEF9C3;
+      --gold-100:  #FFFBEB;
       --red:       #DC2626;
+      --red-50:    #FEF2F2;
       --red-100:   #FEE2E2;
       --amber:     #D97706;
+      --amber-50:  #FFFBEB;
       --amber-100: #FEF3C7;
       --gray-900:  #111827;
       --gray-700:  #374151;
       --gray-500:  #6B7280;
+      --gray-400:  #9CA3AF;
       --gray-300:  #D1D5DB;
       --gray-200:  #E5E7EB;
       --gray-100:  #F3F4F6;
       --gray-50:   #F9FAFB;
       --white:     #FFFFFF;
+
+      /* Phase colours */
+      --phase-1: #E0F2FE; /* Pre app — light blue */
+      --phase-2: #FEF9C3; /* Peak — light yellow */
+      --phase-3: #FCE7F3; /* Rejections — light pink */
+      --phase-4: #F0FDF4; /* Post cycle — light green */
+      --phase-1-border: #BAE6FD;
+      --phase-2-border: #FDE68A;
+      --phase-3-border: #FBCFE8;
+      --phase-4-border: #BBF7D0;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--gray-50);
       color: var(--gray-900);
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 13px;
     }
 
     /* ===== TOPBAR ===== */
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 200;
       background: var(--green-900);
       color: var(--white);
-      padding: 0 28px;
-      height: 58px;
+      padding: 0 24px;
+      height: 54px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
-
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
     .logo {
       background: var(--gold);
       color: var(--green-900);
       font-weight: 900;
-      font-size: 17px;
-      letter-spacing: 2px;
-      padding: 5px 10px;
-      border-radius: 5px;
-    }
-
-    .topbar-title { font-size: 16px; font-weight: 600; }
-    .topbar-sub   { font-size: 11px; opacity: 0.65; margin-top: 1px; }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .month-nav {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 8px;
-      padding: 4px 8px;
-    }
-
-    .month-nav button {
-      background: none;
-      border: none;
-      color: var(--white);
-      cursor: pointer;
       font-size: 15px;
-      width: 26px;
-      height: 26px;
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s;
+      letter-spacing: 2px;
+      padding: 4px 9px;
+      border-radius: 4px;
     }
-    .month-nav button:hover { background: rgba(255,255,255,0.18); }
-
-    #month-label {
-      font-size: 14px;
-      font-weight: 600;
-      min-width: 80px;
-      text-align: center;
-    }
+    .topbar-title { font-size: 15px; font-weight: 600; }
+    .topbar-sub   { font-size: 11px; opacity: 0.6; margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
 
     .btn {
-      padding: 7px 15px;
+      padding: 6px 14px;
       border-radius: 6px;
       border: none;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       transition: all 0.15s;
-      white-space: nowrap;
     }
-    .btn-ghost  { background: rgba(255,255,255,0.1); color: var(--white); border: 1px solid rgba(255,255,255,0.25); }
+    .btn-ghost { background: rgba(255,255,255,0.12); color: var(--white); border: 1px solid rgba(255,255,255,0.2); }
     .btn-ghost:hover { background: rgba(255,255,255,0.2); }
-    .btn-gold   { background: var(--gold); color: var(--green-900); font-weight: 700; }
+    .btn-ghost.active { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); font-weight: 700; }
+    .btn-gold { background: var(--gold); color: var(--green-900); font-weight: 700; }
     .btn-gold:hover { filter: brightness(1.08); }
-    .btn-green  { background: var(--green-900); color: var(--white); }
-    .btn-green:hover { background: var(--green-700); }
-    .btn-danger { background: var(--red-100); color: var(--red); border: 1px solid #FECACA; }
-    .btn-neutral{ background: var(--gray-100); color: var(--gray-700); border: 1px solid var(--gray-200); }
-
-    .edit-badge {
-      background: var(--gold);
-      color: var(--green-900);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 9px;
-      border-radius: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* ===== MAIN ===== */
-    .main {
-      max-width: 1380px;
-      margin: 0 auto;
-      padding: 22px 28px 60px;
-    }
 
     /* ===== SETUP BANNER ===== */
     .setup-banner {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       background: var(--amber-100);
-      border: 1.5px solid var(--gold);
-      border-radius: 8px;
-      padding: 12px 18px;
-      margin-bottom: 20px;
-      font-size: 13px;
+      border-bottom: 1.5px solid var(--gold);
+      padding: 10px 24px;
+      font-size: 12px;
     }
     .setup-banner input {
       flex: 1;
-      padding: 7px 12px;
+      max-width: 520px;
+      padding: 6px 11px;
       border: 1.5px solid var(--gold);
-      border-radius: 6px;
-      font-size: 13px;
+      border-radius: 5px;
+      font-size: 12px;
       outline: none;
-      min-width: 0;
     }
     .setup-banner input:focus { border-color: var(--green-900); }
 
@@ -174,232 +117,256 @@
       display: flex;
       align-items: flex-end;
       gap: 2px;
+      padding: 0 24px;
+      background: var(--white);
       border-bottom: 2px solid var(--gray-200);
-      margin-bottom: 18px;
     }
-
     .dept-tab {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 22px;
+      padding: 10px 20px;
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
       color: var(--gray-500);
       border-bottom: 3px solid transparent;
       margin-bottom: -2px;
-      border-radius: 6px 6px 0 0;
+      border-radius: 5px 5px 0 0;
       transition: all 0.15s;
     }
-    .dept-tab:hover  { color: var(--green-900); background: var(--gray-100); }
+    .dept-tab:hover  { color: var(--green-900); background: var(--gray-50); }
     .dept-tab.active { color: var(--green-900); border-bottom-color: var(--green-900); font-weight: 700; }
 
-    .dept-tab .remove-btn {
-      display: none;
-      width: 18px; height: 18px;
-      background: var(--red-100);
-      border: none; border-radius: 50%;
-      color: var(--red);
-      font-size: 10px; font-weight: 700;
-      cursor: pointer;
-      align-items: center; justify-content: center;
-    }
-    body.edit-mode .dept-tab .remove-btn { display: inline-flex; }
+    /* ===== MAIN ===== */
+    .main { padding: 20px 24px 60px; }
 
-    .add-dept-btn {
-      padding: 8px 14px;
-      background: none;
-      border: none;
-      color: var(--gray-500);
-      font-size: 22px;
-      cursor: pointer;
-      border-radius: 6px;
-      transition: background 0.15s;
-      margin-bottom: 2px;
-    }
-    .add-dept-btn:hover { background: var(--gray-100); color: var(--green-900); }
-
-    /* ===== PROGRAM PILLS ===== */
-    .program-bar {
+    /* ===== SUMMARY CARDS ===== */
+    .summary-row {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-
-    .prog-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 6px 16px;
-      background: var(--white);
-      border: 1.5px solid var(--gray-200);
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--gray-700);
-      transition: all 0.15s;
-    }
-    .prog-pill:hover  { border-color: var(--green-900); color: var(--green-900); }
-    .prog-pill.active { background: var(--green-900); border-color: var(--green-900); color: var(--white); }
-
-    .prog-pill .remove-btn {
-      display: none;
-      width: 16px; height: 16px;
-      background: rgba(255,255,255,0.25);
-      border: none; border-radius: 50%;
-      color: inherit;
-      font-size: 10px; font-weight: 700;
-      cursor: pointer;
-      align-items: center; justify-content: center;
-    }
-    body.edit-mode .prog-pill .remove-btn { display: inline-flex; }
-
-    .add-prog-pill {
-      padding: 6px 16px;
-      background: var(--gold-100);
-      border: 1.5px dashed var(--gold);
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--green-900);
-      transition: all 0.15s;
-    }
-    .add-prog-pill:hover { background: #FEF08A; }
-
-    /* ===== SUMMARY STAT CARDS ===== */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 12px;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
+    .sum-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 9px;
+      padding: 12px 18px;
+      flex: 1;
+      min-width: 140px;
+    }
+    .sum-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 3px; }
+    .sum-value { font-size: 20px; font-weight: 700; color: var(--green-900); }
+    .sum-sub   { font-size: 10px; color: var(--gray-500); margin-top: 2px; }
+    .sum-red   .sum-value { color: var(--red); }
+    .sum-amber .sum-value { color: var(--amber); }
 
-    .stat-card {
+    /* ===== TABLE WRAPPER ===== */
+    .table-wrap {
       background: var(--white);
       border: 1px solid var(--gray-200);
       border-radius: 10px;
-      padding: 14px 18px;
-    }
-    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 4px; }
-    .stat-value { font-size: 22px; font-weight: 700; color: var(--green-900); }
-    .stat-note  { font-size: 11px; color: var(--gray-500); margin-top: 3px; }
-    .stat-red   .stat-value { color: var(--red); }
-    .stat-amber .stat-value { color: var(--amber); }
-
-    /* ===== SECTION TABLES ===== */
-    .section {
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: 12px;
-      margin-bottom: 22px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      overflow-x: auto;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
 
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    /* ===== YEAR TABLE ===== */
+    .year-table {
+      border-collapse: collapse;
+      min-width: 100%;
+      table-layout: fixed;
+    }
+
+    /* Column widths */
+    .year-table .col-label  { width: 190px; min-width: 190px; }
+    .year-table .col-month  { width: 95px;  min-width: 95px; }
+    .year-table .col-total  { width: 105px; min-width: 105px; }
+
+    /* ===== HEADER ROWS ===== */
+
+    /* Phase header */
+    .year-table thead tr.phase-row th {
+      padding: 7px 10px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 1px solid var(--gray-300);
+    }
+    .year-table thead tr.phase-row th.ph-label {
       background: var(--green-900);
       color: var(--white);
-      padding: 11px 20px;
-    }
-    .section-head-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
-    .section-head-meta  { font-size: 12px; opacity: 0.65; }
-
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .data-table thead th {
-      background: var(--gray-100);
-      padding: 9px 16px;
       text-align: left;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--gray-500);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 1px solid var(--gray-200);
+      padding-left: 14px;
+      border-bottom: none;
     }
-    .data-table thead th.r { text-align: right; }
-
-    .data-table tbody td {
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--gray-100);
-      font-size: 14px;
-      vertical-align: middle;
+    .year-table thead tr.phase-row th.ph-total {
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border-left: 2px solid var(--gray-300);
+      border-bottom: 1px solid var(--gray-300);
     }
-    .data-table tbody tr:last-child td { border-bottom: none; }
-    .data-table tbody tr:hover td { background: var(--gray-50); }
+    .ph-1 { background: var(--phase-1); color: #0369A1; border-left: 2px solid var(--phase-1-border); border-right: 1px solid var(--phase-1-border); }
+    .ph-2 { background: var(--phase-2); color: #92400E; border-left: 2px solid var(--phase-2-border); border-right: 1px solid var(--phase-2-border); }
+    .ph-3 { background: var(--phase-3); color: #9D174D; border-left: 2px solid var(--phase-3-border); border-right: 1px solid var(--phase-3-border); }
+    .ph-4 { background: var(--phase-4); color: #166534; border-left: 2px solid var(--phase-4-border); border-right: 1px solid var(--phase-4-border); }
 
-    .td-label { font-weight: 500; color: var(--gray-700); }
-    .td-num   { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
-    .td-pos   { text-align: right; color: #16A34A; font-weight: 600; font-variant-numeric: tabular-nums; }
-    .td-neg   { text-align: right; color: var(--red); font-weight: 600; font-variant-numeric: tabular-nums; }
-
-    /* ===== FLAG CHIPS ===== */
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 10px;
-      border-radius: 12px;
+    /* Month header */
+    .year-table thead tr.month-row th {
+      padding: 7px 6px;
+      text-align: center;
       font-size: 12px;
       font-weight: 600;
-      white-space: nowrap;
+      color: var(--gray-700);
+      background: var(--gray-50);
+      border-bottom: 2px solid var(--gray-300);
     }
-    .chip-ok       { background: var(--green-100); color: #166534; }
-    .chip-warn     { background: var(--amber-100); color: #92400E; }
-    .chip-critical { background: var(--red-100);   color: #991B1B; }
-    .chip-empty    { background: var(--gray-100);  color: var(--gray-500); }
+    .year-table thead tr.month-row th.mh-label {
+      text-align: left;
+      padding-left: 14px;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .year-table thead tr.month-row th.mh-total {
+      background: var(--gray-100);
+      border-left: 2px solid var(--gray-300);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .year-table thead tr.month-row th.phase-1-col { background: #F0F9FF; }
+    .year-table thead tr.month-row th.phase-2-col { background: #FEFCE8; }
+    .year-table thead tr.month-row th.phase-3-col { background: #FDF2F8; }
+    .year-table thead tr.month-row th.phase-4-col { background: #F0FDF4; }
 
-    /* ===== EDITABLE CELL ===== */
-    .editable {
+    /* Sub-header row (Planned / Actual labels) — shown only in 'both' view */
+    .year-table thead tr.sub-row th {
+      padding: 4px 6px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--gray-400);
+      text-align: center;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .year-table thead tr.sub-row th.sub-label { text-align: left; padding-left: 14px; }
+
+    /* ===== DATA ROWS ===== */
+    .year-table tbody td {
+      padding: 0;
+      border-bottom: 1px solid var(--gray-100);
+      vertical-align: middle;
+    }
+    .year-table tbody tr:last-child td { border-bottom: none; }
+    .year-table tbody tr:hover td { background: var(--gray-50) !important; }
+
+    .td-label {
+      padding: 10px 14px;
+      font-weight: 500;
+      color: var(--gray-700);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      position: sticky;
+      left: 0;
+      background: var(--white);
+      border-right: 1px solid var(--gray-200);
+      z-index: 1;
+    }
+    .year-table tbody tr:hover .td-label { background: var(--gray-50); }
+
+    /* Value cell */
+    .val-cell {
+      text-align: center;
+      padding: 0;
       cursor: pointer;
-      border-radius: 4px;
-      transition: background 0.1s;
       position: relative;
     }
-    .editable:hover { background: var(--green-50); }
-    .editable:hover::after {
-      content: ' ✎';
-      font-size: 11px;
-      color: var(--green-700);
-      opacity: 0.7;
+
+    .cell-inner {
+      padding: 7px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-height: 44px;
+      justify-content: center;
     }
 
-    .editable input {
-      width: 130px;
-      padding: 4px 8px;
+    .cell-planned {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-600, #4B5563);
+      white-space: nowrap;
+    }
+    .cell-actual {
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .cell-actual.ok       { color: #166534; background: var(--green-100); }
+    .cell-actual.warn     { color: #92400E; background: var(--amber-100); }
+    .cell-actual.critical { color: #991B1B; background: var(--red-100); }
+    .cell-actual.empty    { color: var(--gray-400); }
+
+    .val-cell:hover .cell-inner { background: var(--green-50); border-radius: 4px; }
+
+    .val-cell input {
+      width: 80px;
+      padding: 4px 6px;
       border: 2px solid var(--green-900);
-      border-radius: 5px;
-      font-size: 13px;
-      text-align: right;
+      border-radius: 4px;
+      font-size: 12px;
+      text-align: center;
       font-family: inherit;
       outline: none;
       background: var(--white);
-      box-shadow: 0 0 0 3px rgba(27,67,50,0.1);
     }
 
-    /* ===== TOTALS ROW ===== */
+    /* Phase column border accents */
+    .phase-1-col { border-left: 1px solid var(--phase-1-border) !important; }
+    .phase-1-col-start { border-left: 2px solid #BAE6FD !important; }
+    .phase-2-col { border-left: 1px solid var(--phase-2-border) !important; }
+    .phase-2-col-start { border-left: 2px solid #FDE68A !important; }
+    .phase-3-col { border-left: 1px solid var(--phase-3-border) !important; }
+    .phase-3-col-start { border-left: 2px solid #FBCFE8 !important; }
+    .phase-4-col { border-left: 1px solid var(--phase-4-border) !important; }
+    .phase-4-col-start { border-left: 2px solid #BBF7D0 !important; }
+
+    /* ===== TOTAL ROW ===== */
     .row-total td {
-      background: var(--gold-100) !important;
-      font-weight: 700;
+      background: var(--gold-100, #FFFBEB) !important;
       border-top: 2px solid var(--gold) !important;
     }
+    .row-total .td-label {
+      font-weight: 700;
+      color: var(--green-900);
+      font-size: 13px;
+      background: #FFFBEB !important;
+    }
+    .row-total .cell-planned { font-weight: 700; color: var(--green-900); font-size: 13px; }
+    .row-total .cell-actual  { font-size: 12px; }
+
+    /* Annual total column */
+    .td-annual {
+      text-align: center;
+      padding: 10px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-700);
+      border-left: 2px solid var(--gray-300) !important;
+    }
+    .td-annual .cell-inner { padding: 4px 6px; }
 
     /* ===== LOADING ===== */
-    .loading-state {
+    .loading {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -409,258 +376,255 @@
       gap: 14px;
     }
     .spinner {
-      width: 34px; height: 34px;
+      width: 32px; height: 32px;
       border: 3px solid var(--gray-200);
       border-top-color: var(--green-900);
       border-radius: 50%;
-      animation: spin 0.75s linear infinite;
+      animation: spin 0.7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== SAVED TOAST ===== */
+    /* ===== TOAST ===== */
     .toast {
       position: fixed;
-      top: 68px; right: 24px;
+      top: 64px; right: 20px;
       background: var(--green-900);
       color: var(--white);
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 13px;
+      padding: 9px 16px;
+      border-radius: 7px;
+      font-size: 12px;
       font-weight: 500;
       z-index: 999;
       opacity: 0;
-      transform: translateY(-6px);
-      transition: opacity 0.25s, transform 0.25s;
+      transform: translateY(-4px);
+      transition: opacity 0.2s, transform 0.2s;
       pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
 
-    /* ===== MODAL ===== */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 500;
+    /* ===== VIEW TOGGLE ===== */
+    .view-toggle {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 2px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 7px;
+      padding: 3px;
     }
-    .modal {
+    .view-toggle .btn-ghost {
+      padding: 4px 11px;
+      font-size: 12px;
+      border: none;
+      border-radius: 5px;
+    }
+    .view-toggle .btn-ghost.active {
       background: var(--white);
-      border-radius: 12px;
-      padding: 28px;
-      width: 420px;
-      max-width: 95vw;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+      color: var(--green-900);
+      font-weight: 700;
     }
-    .modal h3 { font-size: 17px; font-weight: 700; color: var(--green-900); margin-bottom: 16px; }
-    .modal p  { color: var(--gray-700); margin-bottom: 16px; font-size: 14px; }
-    .modal label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
-    .modal input, .modal select {
-      width: 100%; padding: 9px 13px;
-      border: 1.5px solid var(--gray-200);
-      border-radius: 7px; font-size: 14px;
-      font-family: inherit; outline: none; margin-bottom: 14px;
-      transition: border-color 0.15s;
-    }
-    .modal input:focus, .modal select:focus { border-color: var(--green-900); }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
 
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      padding: 48px 24px;
-      text-align: center;
-      color: var(--gray-500);
+    /* ===== PROGRAM DOTS ===== */
+    .prog-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 24px 10px;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-100);
     }
-    .empty-state h4 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--gray-700); }
-    .empty-state p  { font-size: 13px; }
+    .prog-label {
+      font-size: 11px;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-right: 4px;
+    }
+    .prog-overall {
+      padding: 4px 14px;
+      background: var(--green-900);
+      color: var(--white);
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .prog-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gray-300);
+      cursor: default;
+      title: '';
+    }
   </style>
 </head>
 <body>
 
-<!-- ===== SAVED TOAST ===== -->
-<div class="toast" id="toast">✓ Saved to Google Sheets</div>
+<div class="toast" id="toast">✓ Saved</div>
 
-<!-- ===== TOPBAR ===== -->
+<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">TETR</div>
     <div>
-      <div class="topbar-title">AOP Expense Tracker</div>
-      <div class="topbar-sub">Planned vs Actual — Monthly View · All values in USD</div>
+      <div class="topbar-title">Marketing Spend Tracker</div>
+      <div class="topbar-sub">Sep 2026 – Sep 2027 · All values in USD</div>
     </div>
   </div>
   <div class="topbar-right">
-    <div class="month-nav">
-      <button onclick="shiftMonth(-1)" title="Previous month">&#8249;</button>
-      <span id="month-label">— —</span>
-      <button onclick="shiftMonth(+1)" title="Next month">&#8250;</button>
+    <div class="view-toggle">
+      <button class="btn btn-ghost active" id="vbtn-planned"  onclick="setView('planned')">Planned</button>
+      <button class="btn btn-ghost"        id="vbtn-actual"   onclick="setView('actual')">Actual</button>
+      <button class="btn btn-ghost"        id="vbtn-both"     onclick="setView('both')">Both</button>
     </div>
-    <span class="edit-badge" id="edit-badge" style="display:none">Editing</span>
-    <button class="btn btn-ghost" id="edit-btn" onclick="toggleEdit()">Edit Structure</button>
-    <button class="btn btn-gold"  onclick="loadAll()">↻ Refresh</button>
+    <button class="btn btn-gold" onclick="loadAll()">↻ Refresh</button>
   </div>
 </div>
 
-<!-- ===== MAIN ===== -->
+<!-- SETUP BANNER -->
+<div class="setup-banner" id="setup-banner">
+  ⚙️ <strong>Apps Script URL:</strong>
+  <input type="text" id="api-input" placeholder="https://script.google.com/macros/s/…/exec" />
+  <button class="btn btn-gold" onclick="saveUrl()">Save</button>
+</div>
+
+<!-- DEPT TABS -->
+<div class="dept-bar" id="dept-bar">
+  <button class="dept-tab active" onclick="pickDept('PG')"   id="tab-PG">PG</button>
+  <button class="dept-tab"        onclick="pickDept('UG')"   id="tab-UG">UG</button>
+  <button class="dept-tab"        onclick="pickDept('Exec')" id="tab-Exec">Exec</button>
+</div>
+
+<!-- PROGRAM DOTS (decorative — tracking at Overall level only) -->
+<div class="prog-dots" id="prog-dots">
+  <span class="prog-label">Programs</span>
+  <span class="prog-overall">Overall</span>
+  <!-- dots injected by JS -->
+</div>
+
+<!-- MAIN -->
 <div class="main">
 
-  <!-- Setup banner -->
-  <div class="setup-banner" id="setup-banner">
-    ⚙️
-    <span style="white-space:nowrap;font-weight:600">Apps Script URL:</span>
-    <input type="text" id="api-input" placeholder="https://script.google.com/macros/s/…/exec" />
-    <button class="btn btn-gold" onclick="saveUrl()">Save</button>
+  <!-- Summary cards -->
+  <div class="summary-row" id="summary-row">
+    <div class="loading"><div class="spinner"></div></div>
   </div>
 
-  <!-- Dept tabs -->
-  <div class="dept-bar" id="dept-bar"></div>
-
-  <!-- Program pills -->
-  <div class="program-bar" id="prog-bar"></div>
-
-  <!-- Content -->
-  <div id="content">
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <span>Connecting to Google Sheets…</span>
+  <!-- Year table -->
+  <div class="table-wrap">
+    <div id="table-area">
+      <div class="loading">
+        <div class="spinner"></div>
+        <span>Loading from Google Sheets…</span>
+      </div>
     </div>
   </div>
 
 </div>
 
-<!-- ===== MODAL ===== -->
-<div class="overlay" id="overlay" style="display:none" onclick="if(event.target===this)closeModal()">
-  <div class="modal" id="modal-body"></div>
-</div>
-
-<!-- ===== SCRIPT ===== -->
 <script>
 // ============================================================
-// CONFIG & STATE
+// CONSTANTS
 // ============================================================
-const URL_KEY = 'tetr_api_url';
-let API = localStorage.getItem(URL_KEY) || '';
 
-let S = {            // app state
-  data:    null,
-  dept:    null,
-  prog:    null,
-  month:   null,
-  editing: false
+const API = 'https://script.google.com/macros/s/AKfycby-MPOQGbvbb11BmJiiFbqfGK7ID22QIOmOYb-qJnWR8z5__145JFqaDzErlWIF7VT5/exec';
+
+const DEPT_PROGRAMS = {
+  PG:   ['MiM 2027', 'GPEL', 'MSEI', 'MBA'],
+  UG:   ['Bachelor of Business', 'Bachelor of Finance'],
+  Exec: ['Executive MBA', 'Executive Leadership', 'Certificate Programs'],
 };
 
-// All metric definitions
-// type: 'cost' → flag if actual > plan | 'rev'/'margin' → flag if actual < plan
-// unit: '$' | '%' | '' (count)
-const CATS = {
-  'P&L Summary': [
-    { m: 'Number of Students',        type: 'rev',    unit: ''  },
-    { m: 'ARPS',                      type: 'rev',    unit: '$' },
-    { m: 'Revenue',                   type: 'rev',    unit: '$' },
-    { m: 'Delivery Cost',             type: 'cost',   unit: '$' },
-    { m: 'Gross Margin',              type: 'margin', unit: '$' },
-    { m: 'Gross Margin Percent',      type: 'margin', unit: '%' },
-    { m: 'Marketing Spend',           type: 'cost',   unit: '$' },
-    { m: 'Contribution Margin',       type: 'margin', unit: '$' },
-    { m: 'Contribution Margin Percent',type:'margin', unit: '%' },
-    { m: 'Team Cost',                 type: 'cost',   unit: '$' },
-    { m: 'Net Margin',                type: 'margin', unit: '$' },
-    { m: 'Net Margin Percent',        type: 'margin', unit: '%' },
-  ],
-  'Marketing Spend by Channel': [
-    { m: 'Performance Marketing',           type: 'cost', unit: '$' },
-    { m: 'Offline Events',                  type: 'cost', unit: '$' },
-    { m: 'Influencer Marketing',            type: 'cost', unit: '$' },
-    { m: 'Agent and Counsellor Networks',   type: 'cost', unit: '$' },
-    { m: 'Interviewer Cost',                type: 'cost', unit: '$' },
-    { m: 'Brand',                           type: 'cost', unit: '$' },
-    { m: 'WATI',                            type: 'cost', unit: '$' },
-    { m: 'Printing and Tools',              type: 'cost', unit: '$' },
-    { m: 'Conversion Incentive',            type: 'cost', unit: '$' },
-    { m: 'PR',                              type: 'cost', unit: '$' },
-    { m: 'Affiliate Marketing',             type: 'cost', unit: '$' },
-    { m: 'Buddy',                           type: 'cost', unit: '$' },
-    { m: 'Online Events',                   type: 'cost', unit: '$' },
-  ],
-  'Headcount and Salary': [
-    { m: 'Admissions Headcount',  type: 'rev',  unit: ''  },
-    { m: 'Admissions Budget',     type: 'cost', unit: '$' },
-    { m: 'Delivery Headcount',    type: 'rev',  unit: ''  },
-    { m: 'Delivery Budget',       type: 'cost', unit: '$' },
-    { m: 'Careers Headcount',     type: 'rev',  unit: ''  },
-    { m: 'Careers Budget',        type: 'cost', unit: '$' },
-    { m: 'Marketing Headcount',   type: 'rev',  unit: ''  },
-    { m: 'Marketing Budget',      type: 'cost', unit: '$' },
-  ]
+const MONTHS = [
+  { key: '2026-09', label: 'Sep', year: '26' },
+  { key: '2026-10', label: 'Oct', year: '26' },
+  { key: '2026-11', label: 'Nov', year: '26' },
+  { key: '2026-12', label: 'Dec', year: '26' },
+  { key: '2027-01', label: 'Jan', year: '27' },
+  { key: '2027-02', label: 'Feb', year: '27' },
+  { key: '2027-03', label: 'Mar', year: '27' },
+  { key: '2027-04', label: 'Apr', year: '27' },
+  { key: '2027-05', label: 'May', year: '27' },
+  { key: '2027-06', label: 'Jun', year: '27' },
+  { key: '2027-07', label: 'Jul', year: '27' },
+  { key: '2027-08', label: 'Aug', year: '27' },
+  { key: '2027-09', label: 'Sep', year: '27' },
+];
+
+const PHASES = [
+  { label: 'Pre Application Phase',                keys: ['2026-09', '2026-10'],                                          cls: 'ph-1', colCls: 'phase-1-col', startCls: 'phase-1-col-start' },
+  { label: 'Peak Application Phase',               keys: ['2026-11', '2026-12', '2027-01', '2027-02', '2027-03'],         cls: 'ph-2', colCls: 'phase-2-col', startCls: 'phase-2-col-start' },
+  { label: 'Rejections by Top Universities Phase', keys: ['2027-04', '2027-05', '2027-06', '2027-07'],                    cls: 'ph-3', colCls: 'phase-3-col', startCls: 'phase-3-col-start' },
+  { label: 'Post Cycle',                           keys: ['2027-08', '2027-09'],                                          cls: 'ph-4', colCls: 'phase-4-col', startCls: 'phase-4-col-start' },
+];
+
+// Map each month key → phase info
+const MONTH_PHASE = {};
+PHASES.forEach(ph => ph.keys.forEach((k, i) => { MONTH_PHASE[k] = { ph, isFirst: i === 0 }; }));
+
+const CHANNELS = [
+  'Performance Marketing',
+  'Influencer Marketing',
+  'PR',
+  'Affiliate Marketing',
+  'Online Events',
+  'Offline Events',
+  'WATI',
+  'Buddy',
+  'Interviewer Cost',
+  'Conversion Incentive',
+  'Printing and Tools',
+  'Brand',
+  'Agent and Counsellor Networks',
+];
+
+const CAT = 'Marketing Spend by Channel';
+const PROG = 'Overall';
+
+// ============================================================
+// STATE
+// ============================================================
+let S = {
+  data:  null,
+  dept:  'PG',
+  view:  'planned',  // 'planned' | 'actual' | 'both'
 };
 
 // ============================================================
-// BOOT
+// INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  const now = new Date();
-  S.month = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  updateMonthLabel();
-
-  if (API) {
-    document.getElementById('setup-banner').style.display = 'none';
-    document.getElementById('api-input').value = API;
-    loadAll();
-  }
+  document.getElementById('setup-banner').style.display = 'none';
+  loadAll();
+  renderProgDots();
 });
 
 // ============================================================
-// URL SAVE
+// URL
 // ============================================================
-function saveUrl() {
-  const v = document.getElementById('api-input').value.trim();
-  if (!v.includes('script.google.com')) {
-    alert('Please paste a valid Google Apps Script URL (starting with https://script.google.com…)');
-    return;
-  }
-  API = v;
-  localStorage.setItem(URL_KEY, API);
-  document.getElementById('setup-banner').style.display = 'none';
-  loadAll();
-}
 
 // ============================================================
-// DATA LOADING
+// DATA
 // ============================================================
 async function loadAll() {
-  if (!API) return;
-  showLoading('Loading from Google Sheets…');
+  showTableLoading();
   try {
-    const res = await fetch(`${API}?action=getAll`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res  = await fetch(`${API}?action=getAll`);
     const json = await res.json();
     if (json.error) throw new Error(json.error);
     S.data = json;
-
-    const depts = Object.keys(json.programs || {});
-    if (!S.dept || !depts.includes(S.dept)) S.dept = depts[0] || null;
-    if (S.dept) {
-      const progs = json.programs[S.dept] || [];
-      if (!S.prog || !progs.includes(S.prog)) S.prog = progs[0] || null;
-    }
     renderAll();
   } catch(e) {
-    document.getElementById('content').innerHTML = `
-      <div class="loading-state" style="color:var(--red)">
-        <div style="font-size:28px">⚠</div>
-        <strong>Could not load data</strong>
-        <p style="font-size:13px;color:var(--gray-500);max-width:400px;text-align:center">${e.message}<br><br>
-        Make sure your Apps Script is deployed as a Web App with access set to "Anyone".</p>
-        <button class="btn btn-green" onclick="loadAll()">Retry</button>
+    document.getElementById('table-area').innerHTML = `
+      <div class="loading" style="color:var(--red)">
+        <div>⚠ ${e.message}</div>
+        <button class="btn btn-gold" style="margin-top:8px" onclick="loadAll()">Retry</button>
       </div>`;
+    document.getElementById('summary-row').innerHTML = '';
   }
 }
 
 async function post(action, body) {
-  const res = await fetch(API, {
+  const res  = await fetch(API, {
     method: 'POST',
-    // Must be text/plain to avoid CORS preflight on Apps Script
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ action, ...body })
   });
@@ -670,349 +634,333 @@ async function post(action, body) {
 }
 
 // ============================================================
-// RENDER
+// BUILD LOOKUPS
+// ============================================================
+function makeLookup(rows, dept, field) {
+  const map = {};
+  (rows || []).forEach(r => {
+    if (r['Department'] === dept && r['Program'] === PROG && r['Category'] === CAT) {
+      const k = r['Metric'] + '||' + r['Month'];
+      const v = parseFloat(r[field]);
+      map[k] = isNaN(v) ? null : v;
+    }
+  });
+  return map;
+}
+
+function getVal(lookup, channel, monthKey) {
+  return lookup[channel + '||' + monthKey] ?? null;
+}
+
+// ============================================================
+// RENDER ALL
 // ============================================================
 function renderAll() {
-  renderDeptBar();
-  renderProgBar();
-  renderContent();
+  renderSummary();
+  renderTable();
+  renderProgDots();
 }
 
-function renderDeptBar() {
-  const bar   = document.getElementById('dept-bar');
-  const depts = Object.keys(S.data?.programs || {});
-
-  let html = depts.map(d => `
-    <button class="dept-tab ${d===S.dept?'active':''}" onclick="pickDept(${q(d)})">
-      ${esc(d)}
-      <button class="remove-btn" onclick="event.stopPropagation();confirmRemoveDept(${q(d)})">✕</button>
-    </button>`).join('');
-
-  if (S.editing) html += `<button class="add-dept-btn" title="Add department" onclick="showAddDept()">+</button>`;
-  bar.innerHTML = html;
-}
-
-function renderProgBar() {
-  const bar   = document.getElementById('prog-bar');
-  const progs = (S.data?.programs?.[S.dept] || []);
-
-  let html = progs.map(p => `
-    <button class="prog-pill ${p===S.prog?'active':''}" onclick="pickProg(${q(p)})">
-      ${esc(p)}
-      <button class="remove-btn" onclick="event.stopPropagation();confirmRemoveProg(${q(p)})">✕</button>
-    </button>`).join('');
-
-  if (S.editing) html += `<button class="add-prog-pill" onclick="showAddProg()">+ Add Program</button>`;
-  bar.innerHTML = html;
-}
-
-function renderContent() {
-  const el = document.getElementById('content');
-
-  if (!S.dept || !S.prog) {
-    el.innerHTML = `<div class="empty-state"><h4>No program selected</h4><p>Add a department and program to get started.</p></div>`;
-    return;
-  }
-
-  const dept  = S.dept, prog = S.prog, mo = S.month;
-  const pLookup = makeLookup(S.data.planned, dept, prog, 'Planned Amount in USD');
-  const aLookup = makeLookup(S.data.actual,  dept, prog, 'Actual Amount in USD');
-  const alerts  = makeAlertMap(S.data.alerts, dept, prog);
-
-  // ---- Summary stat cards ----
-  const rev    = pLookup[k('P&L Summary','Revenue',mo)];
-  const aRev   = aLookup[k('P&L Summary','Revenue',mo)];
-  const aNet   = aLookup[k('P&L Summary','Net Margin',mo)];
-  const pMkt   = sumCat(pLookup, 'Marketing Spend by Channel', mo);
-  const aMkt   = sumCat(aLookup, 'Marketing Spend by Channel', mo);
-  const aGM    = aLookup[k('P&L Summary','Gross Margin',mo)];
-
-  let html = `<div class="stats-row">
-    ${sc('Planned Revenue',      fmt(rev,   '$'))}
-    ${sc('Actual Revenue',       fmt(aRev,  '$'), aRev!=null && rev!=null && aRev < rev ? 'red' : '')}
-    ${sc('Gross Margin (Actual)',fmt(aGM,   '$'), aGM!=null && aGM < 0 ? 'red' : '')}
-    ${sc('Net Margin (Actual)',  fmt(aNet,  '$'), aNet!=null && aNet < 0 ? 'red' : '')}
-    ${sc('Mkt Spend Planned',    fmt(pMkt,  '$'))}
-    ${sc('Mkt Spend Actual',     fmt(aMkt,  '$'), aMkt!=null && pMkt!=null && aMkt > pMkt*1.1 ? 'amber' : '')}
-  </div>`;
-
-  // ---- Category tables ----
-  Object.entries(CATS).forEach(([cat, metrics]) => {
-    html += buildTable(cat, metrics, pLookup, aLookup, alerts, dept, prog, mo);
+function renderProgDots() {
+  const el    = document.getElementById('prog-dots');
+  const progs = DEPT_PROGRAMS[S.dept] || [];
+  let html = `<span class="prog-label">Programs</span><span class="prog-overall">Overall</span>`;
+  progs.forEach(p => {
+    html += `<div class="prog-dot" title="${esc(p)}"></div>`;
   });
-
   el.innerHTML = html;
 }
 
-// Build one category table
-function buildTable(cat, metrics, pL, aL, alerts, dept, prog, mo) {
-  const rows = metrics.map(({m, type, unit}) => {
-    const pv  = pL[k(cat,m,mo)];
-    const av  = aL[k(cat,m,mo)];
-    const thr = alerts[m] || alerts['All'] || { w: 10, c: 20 };
-    const varAbs = (pv!=null && av!=null) ? av - pv : null;
-    const varPct = (pv!=null && pv!==0 && varAbs!=null) ? (varAbs/Math.abs(pv))*100 : null;
-    const flag   = calcFlag(type, av, pv, thr.w, thr.c);
+// ============================================================
+// SUMMARY CARDS
+// ============================================================
+function renderSummary() {
+  const pL = makeLookup(S.data.planned, S.dept, 'Planned Amount in USD');
+  const aL = makeLookup(S.data.actual,  S.dept, 'Actual Amount in USD');
 
-    // Variance colour flips based on metric type
-    const isCost = type === 'cost';
-    const vClass = varAbs == null ? 'td-num' :
-                   isCost ? (varAbs > 0 ? 'td-neg' : 'td-pos') :
-                             (varAbs > 0 ? 'td-pos' : 'td-neg');
+  let totalPlan = 0, totalActual = 0, hasActual = false;
+  let channelsOver = 0, monthsEntered = new Set();
 
-    return `<tr>
-      <td class="td-label">${esc(m)}</td>
-      <td class="td-num editable" onclick="startEdit(this,${q(dept)},${q(prog)},${q(cat)},${q(m)},${q(mo)},'planned',${q(unit)})">${fmt(pv,unit)}</td>
-      <td class="td-num editable" onclick="startEdit(this,${q(dept)},${q(prog)},${q(cat)},${q(m)},${q(mo)},'actual',${q(unit)})">${fmt(av,unit)}</td>
-      <td class="${vClass}">${varAbs!=null ? (varAbs>=0?'+':'')+fmt(varAbs,unit) : '—'}</td>
-      <td class="${vClass}">${varPct!=null ? (varPct>=0?'+':'')+varPct.toFixed(1)+'%' : '—'}</td>
-      <td>${chipHtml(flag)}</td>
-    </tr>`;
-  }).join('');
+  CHANNELS.forEach(ch => {
+    MONTHS.forEach(m => {
+      const pv = getVal(pL, ch, m.key);
+      const av = getVal(aL, ch, m.key);
+      if (pv) totalPlan += pv;
+      if (av != null) {
+        totalActual += av;
+        hasActual = true;
+        monthsEntered.add(m.key);
+        if (pv && av > pv * 1.1) channelsOver++;
+      }
+    });
+  });
 
-  // Total row for marketing category
-  let totalRow = '';
-  if (cat === 'Marketing Spend by Channel') {
-    const tp   = sumCat(pL, cat, mo);
-    const ta   = sumCat(aL, cat, mo);
-    const tv   = tp!=null && ta!=null ? ta-tp : null;
-    const tvp  = tp && tv!=null ? (tv/tp)*100 : null;
-    const vCls = tv==null?'td-num': tv>0?'td-neg':'td-pos';
-    totalRow = `<tr class="row-total">
-      <td class="td-label">TOTAL</td>
-      <td class="td-num">${fmt(tp,'$')}</td>
-      <td class="td-num">${fmt(ta,'$')}</td>
-      <td class="${vCls}">${tv!=null ? (tv>=0?'+':'')+fmt(tv,'$') : '—'}</td>
-      <td class="${vCls}">${tvp!=null ? (tvp>=0?'+':'')+tvp.toFixed(1)+'%' : '—'}</td>
-      <td>${chipHtml(tv==null?'empty':tv>0?'warn':'ok')}</td>
-    </tr>`;
+  const spent  = hasActual ? totalActual : null;
+  const remain = spent != null ? totalPlan - spent : null;
+  const pct    = spent != null && totalPlan ? (spent / totalPlan * 100) : null;
+
+  document.getElementById('summary-row').innerHTML = `
+    ${sc('Annual Planned Budget',  fmtUSD(totalPlan))}
+    ${sc('Spent to Date',          spent != null ? fmtUSD(spent) : '—', spent != null && spent > totalPlan ? 'red' : '')}
+    ${sc('Remaining Budget',       remain != null ? fmtUSD(remain) : '—', remain != null && remain < 0 ? 'red' : '')}
+    ${sc('Budget Used',            pct != null ? pct.toFixed(1)+'%' : '—', pct > 100 ? 'red' : pct > 85 ? 'amber' : '')}
+    ${sc('Months With Data',       monthsEntered.size + ' / 13')}
+    ${sc('Channels Over Budget',   channelsOver > 0 ? channelsOver : '0', channelsOver > 0 ? 'red' : '')}
+  `;
+}
+
+function sc(label, value, cls='') {
+  return `<div class="sum-card ${cls?'sum-'+cls:''}">
+    <div class="sum-label">${label}</div>
+    <div class="sum-value">${value}</div>
+  </div>`;
+}
+
+// ============================================================
+// YEAR TABLE
+// ============================================================
+function renderTable() {
+  const pL = makeLookup(S.data.planned, S.dept, 'Planned Amount in USD');
+  const aL = makeLookup(S.data.actual,  S.dept, 'Actual Amount in USD');
+  const alerts = makeAlertMap(S.data.alerts, S.dept);
+
+  const view = S.view;
+
+  // ---- Phase header row ----
+  let phaseRow = `<tr class="phase-row">
+    <th class="ph-label col-label">${esc(S.dept)} — Overall</th>`;
+  PHASES.forEach(ph => {
+    phaseRow += `<th class="${ph.cls} col-month" colspan="${ph.keys.length}" style="text-align:center">${ph.label}</th>`;
+  });
+  phaseRow += `<th class="ph-total col-total">Annual Total</th></tr>`;
+
+  // ---- Month header row ----
+  let monthRow = `<tr class="month-row">
+    <th class="mh-label col-label">Channel</th>`;
+  MONTHS.forEach(m => {
+    const phInfo = MONTH_PHASE[m.key];
+    const colCls = phInfo ? (phInfo.isFirst ? phInfo.ph.startCls : phInfo.ph.colCls) : '';
+    monthRow += `<th class="mh-label col-month ${colCls}">${m.label}<span style="font-size:10px;opacity:0.6"> '${m.year}</span></th>`;
+  });
+  monthRow += `<th class="mh-total col-total">Total</th></tr>`;
+
+  // ---- Sub-header (planned/actual labels) in 'both' view ----
+  let subRow = '';
+  if (view === 'both') {
+    subRow = `<tr class="sub-row"><th class="sub-label">↕ Click planned or actual to edit</th>`;
+    MONTHS.forEach(() => { subRow += `<th>Plan / Act</th>`; });
+    subRow += `<th>Plan / Act</th></tr>`;
+  } else {
+    subRow = `<tr class="sub-row"><th class="sub-label">Click any cell to edit ${view === 'planned' ? 'planned' : 'actual'} value</th>`;
+    MONTHS.forEach(() => { subRow += `<th>${view === 'planned' ? 'Planned' : 'Actual'}</th>`; });
+    subRow += `<th>${view === 'planned' ? 'Planned' : 'Actual'}</th></tr>`;
   }
 
-  return `<div class="section">
-    <div class="section-head">
-      <span class="section-head-title">${esc(cat)}</span>
-      <span class="section-head-meta">${fmtMonth(mo)}</span>
-    </div>
-    <table class="data-table">
-      <thead><tr>
-        <th>Metric</th>
-        <th class="r">Planned (USD)</th>
-        <th class="r">Actual (USD)</th>
-        <th class="r">Variance ($)</th>
-        <th class="r">Variance (%)</th>
-        <th>Status</th>
-      </tr></thead>
-      <tbody>${rows}${totalRow}</tbody>
-    </table>
-  </div>`;
+  // ---- Data rows ----
+  let dataRows = '';
+  CHANNELS.forEach(ch => {
+    let annualPlan = 0, annualActual = 0, hasAnyActual = false;
+    let cells = '';
+
+    MONTHS.forEach(m => {
+      const phInfo  = MONTH_PHASE[m.key];
+      const colCls  = phInfo ? (phInfo.isFirst ? phInfo.ph.startCls : phInfo.ph.colCls) : '';
+      const pv      = getVal(pL, ch, m.key);
+      const av      = getVal(aL, ch, m.key);
+      const thr     = alerts[ch] || alerts['All'] || { w: 10, c: 20 };
+      const flag    = calcFlag(av, pv, thr.w, thr.c);
+
+      if (pv != null) annualPlan   += pv;
+      if (av != null) { annualActual += av; hasAnyActual = true; }
+
+      cells += buildCell(ch, m.key, pv, av, flag, view, colCls);
+    });
+
+    // Annual totals cell
+    const annFlag = calcFlag(hasAnyActual ? annualActual : null, annualPlan, 10, 20);
+    let annCell = `<td class="td-annual">`;
+    if (view === 'planned' || view === 'both') {
+      annCell += `<div class="cell-planned">${fmtUSD(annualPlan || null)}</div>`;
+    }
+    if ((view === 'actual' || view === 'both') && hasAnyActual) {
+      annCell += `<div class="cell-actual ${annFlag}">${fmtUSD(annualActual)}</div>`;
+    }
+    annCell += `</td>`;
+
+    dataRows += `<tr>
+      <td class="td-label">${esc(ch)}</td>
+      ${cells}
+      ${annCell}
+    </tr>`;
+  });
+
+  // ---- Total row ----
+  let totalRow = `<tr class="row-total"><td class="td-label">TOTAL</td>`;
+  let grandPlan = 0, grandActual = 0, hasGrandActual = false;
+
+  MONTHS.forEach(m => {
+    const phInfo = MONTH_PHASE[m.key];
+    const colCls = phInfo ? (phInfo.isFirst ? phInfo.ph.startCls : phInfo.ph.colCls) : '';
+    let mPlan = 0, mActual = 0, hasMActual = false;
+
+    CHANNELS.forEach(ch => {
+      const pv = getVal(pL, ch, m.key);
+      const av = getVal(aL, ch, m.key);
+      if (pv != null) mPlan   += pv;
+      if (av != null) { mActual += av; hasMActual = true; }
+    });
+
+    grandPlan   += mPlan;
+    if (hasMActual) { grandActual += mActual; hasGrandActual = true; }
+
+    const flag = calcFlag(hasMActual ? mActual : null, mPlan, 10, 20);
+    totalRow += buildCell(null, m.key, mPlan || null, hasMActual ? mActual : null, flag, view, colCls);
+  });
+
+  // Grand total annual cell
+  let grandCell = `<td class="td-annual">
+    <div class="cell-planned" style="font-weight:700">${fmtUSD(grandPlan || null)}</div>`;
+  if (hasGrandActual) {
+    const gf = calcFlag(grandActual, grandPlan, 10, 20);
+    grandCell += `<div class="cell-actual ${gf}">${fmtUSD(grandActual)}</div>`;
+  }
+  grandCell += `</td>`;
+  totalRow += grandCell + `</tr>`;
+
+  document.getElementById('table-area').innerHTML = `
+    <table class="year-table">
+      <colgroup>
+        <col class="col-label">
+        ${MONTHS.map(() => `<col class="col-month">`).join('')}
+        <col class="col-total">
+      </colgroup>
+      <thead>${phaseRow}${monthRow}${subRow}</thead>
+      <tbody>${dataRows}${totalRow}</tbody>
+    </table>`;
+}
+
+function buildCell(channel, monthKey, pv, av, flag, view, colCls) {
+  const dept    = S.dept;
+  const isTotal = channel === null;
+
+  let inner = '';
+
+  if (view === 'planned') {
+    inner = `<div class="cell-planned">${fmtUSD(pv)}</div>`;
+  } else if (view === 'actual') {
+    inner = `<div class="cell-actual ${av != null ? flag : 'empty'}">${fmtUSD(av)}</div>`;
+  } else { // both
+    inner = `<div class="cell-planned">${fmtUSD(pv)}</div>
+             <div class="cell-actual ${av != null ? flag : 'empty'}">${fmtUSD(av)}</div>`;
+  }
+
+  if (isTotal) {
+    return `<td class="val-cell ${colCls}"><div class="cell-inner">${inner}</div></td>`;
+  }
+
+  // Determine which value to edit on click
+  const editType = view === 'actual' ? 'actual' : 'planned';
+  const onClick  = view === 'both'
+    ? '' // 'both' cells handled differently below
+    : `onclick="startEdit(this,${q(dept)},${q(channel)},${q(monthKey)},${q(editType)})"`;
+
+  if (view === 'both') {
+    // Split cell: top half edits planned, bottom half edits actual
+    return `<td class="val-cell ${colCls}">
+      <div class="cell-inner" style="gap:3px">
+        <div class="cell-planned" style="cursor:pointer;padding:1px 4px;border-radius:3px"
+             onclick="startEdit(this.closest('td'),${q(dept)},${q(channel)},${q(monthKey)},'planned')"
+             title="Click to edit planned">${fmtUSD(pv)}</div>
+        <div class="cell-actual ${av != null ? flag : 'empty'}" style="cursor:pointer"
+             onclick="startEdit(this.closest('td'),${q(dept)},${q(channel)},${q(monthKey)},'actual')"
+             title="Click to edit actual">${av != null ? fmtUSD(av) : '+ actual'}</div>
+      </div>
+    </td>`;
+  }
+
+  return `<td class="val-cell ${colCls}" ${onClick}>
+    <div class="cell-inner">${inner}</div>
+  </td>`;
 }
 
 // ============================================================
 // INLINE EDIT
 // ============================================================
-function startEdit(cell, dept, prog, cat, metric, month, type, unit) {
+function startEdit(cell, dept, channel, monthKey, type) {
   if (cell.querySelector('input')) return;
 
-  const raw = cell.getAttribute('data-raw');
-  const inp = document.createElement('input');
-  inp.type  = 'number';
-  inp.value = raw != null ? raw : '';
-  inp.placeholder = '0';
-  inp.step  = unit === '%' ? '0.01' : '1';
+  const field = type === 'actual' ? 'Actual Amount in USD' : 'Planned Amount in USD';
+  const store = type === 'actual' ? S.data.actual : S.data.planned;
+  const ex    = (store || []).find(r =>
+    r['Department'] === dept && r['Program'] === PROG &&
+    r['Category'] === CAT   && r['Metric'] === channel && r['Month'] === monthKey
+  );
+  const curVal = ex ? parseFloat(ex[field]) : '';
 
-  cell.innerHTML = '';
-  cell.appendChild(inp);
+  const inp = document.createElement('input');
+  inp.type        = 'number';
+  inp.value       = isNaN(curVal) ? '' : curVal;
+  inp.placeholder = '0';
+  inp.min         = '0';
+
+  const inner = cell.querySelector('.cell-inner');
+  inner.innerHTML = '';
+  inner.appendChild(inp);
   inp.focus();
   inp.select();
 
   async function commit() {
     const val = inp.value.trim();
-    if (val === '') { renderContent(); return; }
+    if (val === '') { renderTable(); return; }
     const amount = parseFloat(val);
-    if (isNaN(amount)) { renderContent(); return; }
+    if (isNaN(amount)) { renderTable(); return; }
 
-    cell.innerHTML = '<span style="color:var(--gray-500);font-size:12px">saving…</span>';
+    inner.innerHTML = '<span style="font-size:11px;color:var(--gray-400)">…</span>';
 
     try {
-      const action = type === 'actual' ? 'saveActual' : 'savePlanned';
-      await post(action, { department: dept, program: prog, category: cat, metric, month, amount });
-
+      await post(type === 'actual' ? 'saveActual' : 'savePlanned', {
+        department: dept, program: PROG, category: CAT,
+        metric: channel, month: monthKey, amount
+      });
       // Update local cache
-      const field = type === 'actual' ? 'Actual Amount in USD' : 'Planned Amount in USD';
-      const store = type === 'actual' ? S.data.actual : S.data.planned;
-      const ex    = store.find(r =>
-        r['Department']===dept && r['Program']===prog &&
-        r['Category']===cat   && r['Metric']===metric && r['Month']===month
-      );
-      if (ex) ex[field] = amount;
-      else {
-        const nr = { Department: dept, Program: prog, Category: cat, Metric: metric, Month: month };
+      if (ex) {
+        ex[field] = amount;
+      } else {
+        const nr = { Department: dept, Program: PROG, Category: CAT, Metric: channel, Month: monthKey };
         nr[field] = amount;
         store.push(nr);
       }
       showToast('✓ Saved');
-      renderContent();
+      renderAll();
     } catch(e) {
-      cell.innerHTML = '<span style="color:var(--red)">Error</span>';
-      setTimeout(renderContent, 1500);
+      inner.innerHTML = `<span style="color:var(--red);font-size:11px">Error</span>`;
+      setTimeout(renderTable, 1500);
     }
   }
 
   inp.addEventListener('blur',    commit);
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
-    if (e.key === 'Escape') { renderContent(); }
+    if (e.key === 'Escape') renderTable();
   });
 }
 
 // ============================================================
-// MONTH NAV
+// FLAGS
 // ============================================================
-function shiftMonth(delta) {
-  const [y, m] = S.month.split('-').map(Number);
-  const d = new Date(y, m-1+delta, 1);
-  S.month = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  updateMonthLabel();
-  renderContent();
+function calcFlag(actual, planned, wPct, cPct) {
+  if (actual == null || planned == null || planned === 0) return 'empty';
+  const diff = ((actual - planned) / Math.abs(planned)) * 100;
+  if (diff > cPct) return 'critical';
+  if (diff > wPct) return 'warn';
+  return 'ok';
 }
 
-function updateMonthLabel() {
-  const [y, m] = S.month.split('-').map(Number);
-  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('month-label').textContent = `${MONTHS[m-1]} ${y}`;
-}
-
-// ============================================================
-// EDIT MODE
-// ============================================================
-function toggleEdit() {
-  S.editing = !S.editing;
-  document.body.classList.toggle('edit-mode', S.editing);
-  document.getElementById('edit-btn').textContent   = S.editing ? 'Done Editing' : 'Edit Structure';
-  document.getElementById('edit-badge').style.display = S.editing ? 'inline' : 'none';
-  renderDeptBar();
-  renderProgBar();
-}
-
-// ============================================================
-// DEPT / PROGRAM ACTIONS
-// ============================================================
-function pickDept(dept) {
-  S.dept = dept;
-  const progs = S.data?.programs?.[dept] || [];
-  S.prog = progs[0] || null;
-  renderDeptBar();
-  renderProgBar();
-  renderContent();
-}
-
-function pickProg(prog) {
-  S.prog = prog;
-  renderProgBar();
-  renderContent();
-}
-
-function showAddDept() {
-  openModal(`
-    <h3>Add Department</h3>
-    <label>Department name</label>
-    <input id="mi-dept" type="text" placeholder="e.g. Exec" autofocus>
-    <div class="modal-actions">
-      <button class="btn btn-neutral" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-green"   onclick="submitAddDept()">Add</button>
-    </div>`);
-  setTimeout(() => document.getElementById('mi-dept')?.focus(), 60);
-}
-
-async function submitAddDept() {
-  const name = (document.getElementById('mi-dept').value || '').trim();
-  if (!name) return;
-  await post('addDepartment', { department: name });
-  if (!S.data.programs[name]) S.data.programs[name] = [];
-  S.dept = name; S.prog = null;
-  closeModal(); renderAll();
-}
-
-function showAddProg() {
-  openModal(`
-    <h3>Add Program to ${esc(S.dept)}</h3>
-    <label>Program name</label>
-    <input id="mi-prog" type="text" placeholder="e.g. MBA 2027" autofocus>
-    <div class="modal-actions">
-      <button class="btn btn-neutral" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-green"   onclick="submitAddProg()">Add</button>
-    </div>`);
-  setTimeout(() => document.getElementById('mi-prog')?.focus(), 60);
-}
-
-async function submitAddProg() {
-  const name = (document.getElementById('mi-prog').value || '').trim();
-  if (!name) return;
-  await post('addProgram', { department: S.dept, program: name });
-  S.data.programs[S.dept].push(name);
-  S.prog = name;
-  closeModal(); renderAll();
-}
-
-function confirmRemoveProg(prog) {
-  openModal(`
-    <h3>Remove Program</h3>
-    <p>Remove <strong>${esc(prog)}</strong> from <strong>${esc(S.dept)}</strong>?
-    Existing data is preserved in the sheet — you can re-add it any time.</p>
-    <div class="modal-actions">
-      <button class="btn btn-neutral" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-danger"  onclick="submitRemoveProg(${q(prog)})">Remove</button>
-    </div>`);
-}
-
-async function submitRemoveProg(prog) {
-  await post('deleteProgram', { department: S.dept, program: prog });
-  S.data.programs[S.dept] = S.data.programs[S.dept].filter(p => p !== prog);
-  if (S.prog === prog) S.prog = S.data.programs[S.dept][0] || null;
-  closeModal(); renderAll();
-}
-
-function confirmRemoveDept(dept) {
-  openModal(`
-    <h3>Remove Department</h3>
-    <p>Hide the <strong>${esc(dept)}</strong> department? All programs will be hidden from the dashboard but data is preserved.</p>
-    <div class="modal-actions">
-      <button class="btn btn-neutral" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-danger"  onclick="submitRemoveDept(${q(dept)})">Remove</button>
-    </div>`);
-}
-
-async function submitRemoveDept(dept) {
-  const progs = S.data.programs[dept] || [];
-  for (const p of progs) await post('deleteProgram', { department: dept, program: p });
-  delete S.data.programs[dept];
-  if (S.dept === dept) {
-    S.dept = Object.keys(S.data.programs)[0] || null;
-    S.prog = S.dept ? (S.data.programs[S.dept][0] || null) : null;
-  }
-  closeModal(); renderAll();
-}
-
-// ============================================================
-// UTILITIES
-// ============================================================
-function makeLookup(rows, dept, prog, field) {
-  const map = {};
-  (rows || []).forEach(r => {
-    if (r['Department'] === dept && r['Program'] === prog) {
-      const key = `${r['Category']}||${r['Metric']}||${r['Month']}`;
-      const v   = parseFloat(r[field]);
-      map[key]  = isNaN(v) ? null : v;
-    }
-  });
-  return map;
-}
-
-function makeAlertMap(rows, dept, prog) {
+function makeAlertMap(rows, dept) {
   const map = {};
   (rows || []).forEach(r => {
     const d = r['Department'], p = r['Program'], m = r['Metric'];
-    if ((d===dept||d==='All') && (p===prog||p==='All')) {
+    if (d === dept || d === 'All') {
       const w = parseFloat(r['Warning Percent Over Plan'])  || 10;
       const c = parseFloat(r['Critical Percent Over Plan']) || 20;
       map[String(m)] = { w, c };
@@ -1021,90 +969,56 @@ function makeAlertMap(rows, dept, prog) {
   return map;
 }
 
-function k(cat, metric, month) { return `${cat}||${metric}||${month}`; }
+// ============================================================
+// DEPT + VIEW
+// ============================================================
+function pickDept(dept) {
+  S.dept = dept;
+  document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('tab-' + dept);
+  if (tab) tab.classList.add('active');
+  renderAll();
+}
 
-function sumCat(lookup, cat, month) {
-  let total = 0, any = false;
-  Object.keys(lookup).forEach(key => {
-    if (key.startsWith(cat+'||') && key.endsWith('||'+month) && lookup[key] != null) {
-      total += lookup[key]; any = true;
-    }
+function setView(v) {
+  S.view = v;
+  ['planned','actual','both'].forEach(x => {
+    document.getElementById('vbtn-'+x).classList.toggle('active', x === v);
   });
-  return any ? total : null;
+  renderTable();
 }
 
-function calcFlag(type, actual, planned, wPct, cPct) {
-  if (actual == null || planned == null || planned === 0) return 'empty';
-  const diff = ((actual - planned) / Math.abs(planned)) * 100;
-  if (type === 'cost') {
-    if (diff > cPct) return 'critical';
-    if (diff > wPct) return 'warn';
-    return 'ok';
-  } else {
-    if (diff < -cPct) return 'critical';
-    if (diff < -wPct) return 'warn';
-    return 'ok';
+// ============================================================
+// UTILS
+// ============================================================
+function fmtUSD(val) {
+  if (val == null || isNaN(val) || val === 0 && val !== 0) {
+    if (val === null || val === undefined) return '—';
   }
-}
-
-function chipHtml(flag) {
-  if (flag==='ok')       return '<span class="chip chip-ok">✓ On Track</span>';
-  if (flag==='warn')     return '<span class="chip chip-warn">⚠ Warning</span>';
-  if (flag==='critical') return '<span class="chip chip-critical">✕ Over Limit</span>';
-  return '<span class="chip chip-empty">— No Data</span>';
-}
-
-function fmt(val, unit) {
-  if (val == null || isNaN(val)) return '—';
-  if (unit === '$') {
-    const neg = val < 0;
-    return (neg ? '-$' : '$') + Math.abs(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
-  }
-  if (unit === '%') return val.toFixed(1) + '%';
-  return val.toLocaleString('en-US', { maximumFractionDigits: 0 });
-}
-
-function fmtMonth(mo) {
-  const [y,m] = mo.split('-').map(Number);
-  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]+' '+y;
-}
-
-function sc(label, value, cls='') {
-  return `<div class="stat-card ${cls?'stat-'+cls:''}">
-    <div class="stat-label">${label}</div>
-    <div class="stat-value">${value}</div>
-  </div>`;
-}
-
-function showLoading(msg) {
-  document.getElementById('content').innerHTML = `
-    <div class="loading-state"><div class="spinner"></div><span>${msg||'Loading…'}</span></div>`;
+  if (val === 0) return '$0';
+  const neg = val < 0;
+  return (neg ? '-$' : '$') + Math.abs(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function openModal(html) {
-  document.getElementById('modal-body').innerHTML = html;
-  document.getElementById('overlay').style.display = 'flex';
+function showTableLoading() {
+  document.getElementById('table-area').innerHTML = `
+    <div class="loading"><div class="spinner"></div><span>Loading…</span></div>`;
+  document.getElementById('summary-row').innerHTML = `
+    <div class="loading" style="padding:20px"><div class="spinner"></div></div>`;
 }
 
-function closeModal() {
-  document.getElementById('overlay').style.display = 'none';
-}
-
-// Safe HTML escape
 function esc(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-// Quoted JS string for onclick attributes
 function q(s) {
   return "'" + String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
 }
