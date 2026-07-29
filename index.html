@@ -13,13 +13,12 @@
       --gold:      #C9A227;
       --gold-100:  #FFFBEB;
       --red:       #DC2626;
-      --red-50:    #FEF2F2;
       --red-100:   #FEE2E2;
       --amber:     #D97706;
-      --amber-50:  #FFFBEB;
       --amber-100: #FEF3C7;
       --gray-900:  #111827;
       --gray-700:  #374151;
+      --gray-600:  #4B5563;
       --gray-500:  #6B7280;
       --gray-400:  #9CA3AF;
       --gray-300:  #D1D5DB;
@@ -27,16 +26,6 @@
       --gray-100:  #F3F4F6;
       --gray-50:   #F9FAFB;
       --white:     #FFFFFF;
-
-      /* Phase colours */
-      --phase-1: #E0F2FE; /* Pre app — light blue */
-      --phase-2: #FEF9C3; /* Peak — light yellow */
-      --phase-3: #FCE7F3; /* Rejections — light pink */
-      --phase-4: #F0FDF4; /* Post cycle — light green */
-      --phase-1-border: #BAE6FD;
-      --phase-2-border: #FDE68A;
-      --phase-3-border: #FBCFE8;
-      --phase-4-border: #BBF7D0;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -50,214 +39,134 @@
 
     /* ===== TOPBAR ===== */
     .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      background: var(--green-900);
-      color: var(--white);
-      padding: 0 24px;
-      height: 54px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      position: sticky; top: 0; z-index: 200;
+      background: var(--green-900); color: var(--white);
+      padding: 0 24px; height: 54px;
+      display: flex; align-items: center; justify-content: space-between;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
     .topbar-left { display: flex; align-items: center; gap: 12px; }
     .logo {
-      background: var(--gold);
-      color: var(--green-900);
-      font-weight: 900;
-      font-size: 15px;
-      letter-spacing: 2px;
-      padding: 4px 9px;
-      border-radius: 4px;
+      background: var(--gold); color: var(--green-900);
+      font-weight: 900; font-size: 15px; letter-spacing: 2px;
+      padding: 4px 9px; border-radius: 4px;
     }
     .topbar-title { font-size: 15px; font-weight: 600; }
     .topbar-sub   { font-size: 11px; opacity: 0.6; margin-top: 1px; }
     .topbar-right { display: flex; align-items: center; gap: 8px; }
-
     .btn {
-      padding: 6px 14px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.15s;
+      padding: 6px 14px; border-radius: 6px; border: none;
+      cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s;
     }
-    .btn-ghost { background: rgba(255,255,255,0.12); color: var(--white); border: 1px solid rgba(255,255,255,0.2); }
-    .btn-ghost:hover { background: rgba(255,255,255,0.2); }
-    .btn-ghost.active { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); font-weight: 700; }
     .btn-gold { background: var(--gold); color: var(--green-900); font-weight: 700; }
     .btn-gold:hover { filter: brightness(1.08); }
 
-    /* ===== SETUP BANNER ===== */
-    .setup-banner {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--amber-100);
-      border-bottom: 1.5px solid var(--gold);
-      padding: 10px 24px;
-      font-size: 12px;
-    }
-    .setup-banner input {
-      flex: 1;
-      max-width: 520px;
-      padding: 6px 11px;
-      border: 1.5px solid var(--gold);
-      border-radius: 5px;
-      font-size: 12px;
-      outline: none;
-    }
-    .setup-banner input:focus { border-color: var(--green-900); }
-
     /* ===== DEPT TABS ===== */
     .dept-bar {
-      display: flex;
-      align-items: flex-end;
-      gap: 2px;
-      padding: 0 24px;
-      background: var(--white);
+      display: flex; align-items: flex-end; gap: 2px;
+      padding: 0 24px; background: var(--white);
       border-bottom: 2px solid var(--gray-200);
     }
     .dept-tab {
-      padding: 10px 20px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--gray-500);
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      border-radius: 5px 5px 0 0;
-      transition: all 0.15s;
+      padding: 10px 20px; background: none; border: none;
+      cursor: pointer; font-size: 14px; font-weight: 500;
+      color: var(--gray-500); border-bottom: 3px solid transparent;
+      margin-bottom: -2px; border-radius: 5px 5px 0 0; transition: all 0.15s;
     }
     .dept-tab:hover  { color: var(--green-900); background: var(--gray-50); }
     .dept-tab.active { color: var(--green-900); border-bottom-color: var(--green-900); font-weight: 700; }
 
+    /* ===== PROGRAM DOTS ===== */
+    .prog-dots {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 24px; background: var(--white);
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .prog-label   { font-size: 11px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.4px; margin-right: 4px; }
+    .prog-overall { padding: 3px 12px; background: var(--green-900); color: var(--white); border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .prog-dot     { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-300); cursor: default; }
+
     /* ===== MAIN ===== */
-    .main { padding: 20px 24px 60px; }
+    .main { padding: 18px 24px 60px; }
 
     /* ===== SUMMARY CARDS ===== */
-    .summary-row {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .sum-card {
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: 9px;
-      padding: 12px 18px;
-      flex: 1;
-      min-width: 140px;
-    }
+    .summary-row { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+    .sum-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 9px; padding: 12px 18px; flex: 1; min-width: 130px; }
     .sum-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 3px; }
-    .sum-value { font-size: 20px; font-weight: 700; color: var(--green-900); }
-    .sum-sub   { font-size: 10px; color: var(--gray-500); margin-top: 2px; }
+    .sum-value { font-size: 19px; font-weight: 700; color: var(--green-900); }
     .sum-red   .sum-value { color: var(--red); }
     .sum-amber .sum-value { color: var(--amber); }
 
     /* ===== TABLE WRAPPER ===== */
     .table-wrap {
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: 10px;
-      overflow-x: auto;
+      background: var(--white); border: 1px solid var(--gray-200);
+      border-radius: 10px; overflow-x: auto;
       box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
 
     /* ===== YEAR TABLE ===== */
-    .year-table {
-      border-collapse: collapse;
-      min-width: 100%;
-      table-layout: fixed;
-    }
+    .year-table { border-collapse: collapse; table-layout: fixed; }
+    .year-table .col-label { width: 185px; min-width: 185px; }
+    .year-table .col-sub   { width: 72px;  min-width: 68px; }
 
-    /* Column widths */
-    .year-table .col-label  { width: 190px; min-width: 190px; }
-    .year-table .col-month  { width: 95px;  min-width: 95px; }
-    .year-table .col-total  { width: 105px; min-width: 105px; }
-
-    /* ===== HEADER ROWS ===== */
-
-    /* Phase header */
+    /* ---- Header: Phase row ---- */
     .year-table thead tr.phase-row th {
-      padding: 7px 10px;
-      text-align: center;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
+      padding: 7px 6px; text-align: center;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px;
       border-bottom: 1px solid var(--gray-300);
+      white-space: nowrap;
     }
-    .year-table thead tr.phase-row th.ph-label {
-      background: var(--green-900);
-      color: var(--white);
-      text-align: left;
-      padding-left: 14px;
-      border-bottom: none;
+    .th-annual-phase {
+      background: var(--gray-800, #1F2937); color: var(--white);
+      border-left: 2px solid var(--gray-600) !important;
+      border-right: 2px solid var(--gray-600) !important;
     }
-    .year-table thead tr.phase-row th.ph-total {
-      background: var(--gray-100);
-      color: var(--gray-700);
-      border-left: 2px solid var(--gray-300);
-      border-bottom: 1px solid var(--gray-300);
-    }
-    .ph-1 { background: var(--phase-1); color: #0369A1; border-left: 2px solid var(--phase-1-border); border-right: 1px solid var(--phase-1-border); }
-    .ph-2 { background: var(--phase-2); color: #92400E; border-left: 2px solid var(--phase-2-border); border-right: 1px solid var(--phase-2-border); }
-    .ph-3 { background: var(--phase-3); color: #9D174D; border-left: 2px solid var(--phase-3-border); border-right: 1px solid var(--phase-3-border); }
-    .ph-4 { background: var(--phase-4); color: #166534; border-left: 2px solid var(--phase-4-border); border-right: 1px solid var(--phase-4-border); }
+    .ph-1 { background: #DBEAFE; color: #1E40AF; border-left: 2px solid #BFDBFE !important; }
+    .ph-2 { background: #FEF9C3; color: #854D0E; border-left: 2px solid #FDE68A !important; }
+    .ph-3 { background: #FCE7F3; color: #9D174D; border-left: 2px solid #FBCFE8 !important; }
+    .ph-4 { background: #DCFCE7; color: #166534; border-left: 2px solid #BBF7D0 !important; }
 
-    /* Month header */
+    /* ---- Header: Month row ---- */
     .year-table thead tr.month-row th {
-      padding: 7px 6px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--gray-700);
-      background: var(--gray-50);
-      border-bottom: 2px solid var(--gray-300);
+      padding: 6px 4px; text-align: center;
+      font-size: 12px; font-weight: 600; color: var(--gray-700);
+      background: var(--gray-50); border-bottom: 1px solid var(--gray-300);
     }
-    .year-table thead tr.month-row th.mh-label {
-      text-align: left;
-      padding-left: 14px;
-      background: var(--gray-100);
-      color: var(--gray-700);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
+    .th-annual-month {
+      background: var(--gray-200) !important; color: var(--gray-700) !important;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+      border-left: 2px solid var(--gray-400) !important;
+      border-right: 2px solid var(--gray-400) !important;
     }
-    .year-table thead tr.month-row th.mh-total {
-      background: var(--gray-100);
-      border-left: 2px solid var(--gray-300);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-    .year-table thead tr.month-row th.phase-1-col { background: #F0F9FF; }
-    .year-table thead tr.month-row th.phase-2-col { background: #FEFCE8; }
-    .year-table thead tr.month-row th.phase-3-col { background: #FDF2F8; }
-    .year-table thead tr.month-row th.phase-4-col { background: #F0FDF4; }
+    .mh-ph1 { background: #EFF6FF !important; }
+    .mh-ph2 { background: #FEFCE8 !important; }
+    .mh-ph3 { background: #FDF2F8 !important; }
+    .mh-ph4 { background: #F0FDF4 !important; }
 
-    /* Sub-header row (Planned / Actual labels) — shown only in 'both' view */
-    .year-table thead tr.sub-row th {
-      padding: 4px 6px;
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--gray-400);
-      text-align: center;
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-200);
+    /* ---- Header: Sub-column row ---- */
+    .year-table thead tr.subcol-row th {
+      padding: 5px 4px; text-align: center;
+      font-size: 10px; font-weight: 600; color: var(--gray-500);
+      text-transform: uppercase; letter-spacing: 0.3px;
+      background: var(--white); border-bottom: 2px solid var(--gray-300);
     }
-    .year-table thead tr.sub-row th.sub-label { text-align: left; padding-left: 14px; }
+    .th-channel-sub {
+      text-align: left; padding-left: 14px;
+      font-size: 11px; color: var(--gray-600);
+      background: var(--gray-100) !important;
+    }
+    .sub-plan { color: var(--gray-500); }
+    .sub-act  { color: var(--green-700); }
+    .sub-var  { color: var(--gray-600); }
+    .sub-ann  { background: var(--gray-100) !important; }
+    .sub-ph1  { background: #F8FAFF !important; }
+    .sub-ph2  { background: #FEFEF5 !important; }
+    .sub-ph3  { background: #FEF9FC !important; }
+    .sub-ph4  { background: #F7FDF9 !important; }
 
-    /* ===== DATA ROWS ===== */
+    /* ---- Data cells ---- */
     .year-table tbody td {
-      padding: 0;
       border-bottom: 1px solid var(--gray-100);
       vertical-align: middle;
     }
@@ -265,195 +174,93 @@
     .year-table tbody tr:hover td { background: var(--gray-50) !important; }
 
     .td-label {
-      padding: 10px 14px;
-      font-weight: 500;
-      color: var(--gray-700);
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      position: sticky;
-      left: 0;
-      background: var(--white);
-      border-right: 1px solid var(--gray-200);
-      z-index: 1;
+      padding: 9px 14px; font-weight: 500;
+      color: var(--gray-700); font-size: 13px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      position: sticky; left: 0; background: var(--white);
+      border-right: 2px solid var(--gray-200); z-index: 1;
     }
     .year-table tbody tr:hover .td-label { background: var(--gray-50); }
 
-    /* Value cell */
-    .val-cell {
-      text-align: center;
-      padding: 0;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .cell-inner {
-      padding: 7px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      min-height: 44px;
-      justify-content: center;
-    }
-
-    .cell-planned {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--gray-600, #4B5563);
+    .td-sub {
+      padding: 9px 6px; text-align: right;
+      font-size: 12px; font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
-    .cell-actual {
-      font-size: 11px;
-      font-weight: 600;
-      white-space: nowrap;
-      padding: 1px 5px;
-      border-radius: 3px;
+
+    /* Plan column */
+    .td-plan { color: var(--gray-600); cursor: pointer; }
+    .td-plan:hover { background: var(--green-50) !important; }
+
+    /* Actual column */
+    .td-act { cursor: pointer; }
+    .td-act:hover { background: var(--green-50) !important; }
+    .td-act.ok       { color: #166534; background: #F0FDF4; }
+    .td-act.warn     { color: #92400E; background: var(--amber-100); }
+    .td-act.critical { color: #991B1B; background: var(--red-100); }
+    .td-act.empty    { color: var(--gray-400); }
+
+    /* Variation column */
+    .td-var { font-weight: 600; }
+    .td-var.over  { color: var(--red); }
+    .td-var.under { color: #16A34A; }
+    .td-var.zero  { color: var(--gray-500); }
+    .td-var.empty { color: var(--gray-400); font-weight: 400; }
+
+    /* Annual total group border */
+    .ann-group { border-left: 2px solid var(--gray-400) !important; }
+    .ann-group-right { border-right: 2px solid var(--gray-400) !important; }
+
+    /* Phase start border */
+    .ph1-start { border-left: 2px solid #BFDBFE !important; }
+    .ph2-start { border-left: 2px solid #FDE68A !important; }
+    .ph3-start { border-left: 2px solid #FBCFE8 !important; }
+    .ph4-start { border-left: 2px solid #BBF7D0 !important; }
+
+    /* Inline input */
+    .td-sub input {
+      width: 64px; padding: 3px 5px;
+      border: 2px solid var(--green-900); border-radius: 4px;
+      font-size: 12px; text-align: right; font-family: inherit;
+      outline: none; background: var(--white);
     }
-    .cell-actual.ok       { color: #166534; background: var(--green-100); }
-    .cell-actual.warn     { color: #92400E; background: var(--amber-100); }
-    .cell-actual.critical { color: #991B1B; background: var(--red-100); }
-    .cell-actual.empty    { color: var(--gray-400); }
-
-    .val-cell:hover .cell-inner { background: var(--green-50); border-radius: 4px; }
-
-    .val-cell input {
-      width: 80px;
-      padding: 4px 6px;
-      border: 2px solid var(--green-900);
-      border-radius: 4px;
-      font-size: 12px;
-      text-align: center;
-      font-family: inherit;
-      outline: none;
-      background: var(--white);
-    }
-
-    /* Phase column border accents */
-    .phase-1-col { border-left: 1px solid var(--phase-1-border) !important; }
-    .phase-1-col-start { border-left: 2px solid #BAE6FD !important; }
-    .phase-2-col { border-left: 1px solid var(--phase-2-border) !important; }
-    .phase-2-col-start { border-left: 2px solid #FDE68A !important; }
-    .phase-3-col { border-left: 1px solid var(--phase-3-border) !important; }
-    .phase-3-col-start { border-left: 2px solid #FBCFE8 !important; }
-    .phase-4-col { border-left: 1px solid var(--phase-4-border) !important; }
-    .phase-4-col-start { border-left: 2px solid #BBF7D0 !important; }
 
     /* ===== TOTAL ROW ===== */
+    .row-total .td-label {
+      font-weight: 700; color: var(--green-900);
+      background: var(--gold-100, #FFFBEB) !important;
+    }
     .row-total td {
       background: var(--gold-100, #FFFBEB) !important;
       border-top: 2px solid var(--gold) !important;
     }
-    .row-total .td-label {
-      font-weight: 700;
-      color: var(--green-900);
-      font-size: 13px;
-      background: #FFFBEB !important;
-    }
-    .row-total .cell-planned { font-weight: 700; color: var(--green-900); font-size: 13px; }
-    .row-total .cell-actual  { font-size: 12px; }
-
-    /* Annual total column */
-    .td-annual {
-      text-align: center;
-      padding: 10px 10px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--gray-700);
-      border-left: 2px solid var(--gray-300) !important;
-    }
-    .td-annual .cell-inner { padding: 4px 6px; }
+    .row-total .td-plan { font-weight: 700; color: var(--gray-700); }
+    .row-total .td-act  { font-weight: 700; }
+    .row-total .td-var  { font-weight: 700; }
 
     /* ===== LOADING ===== */
     .loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 20px;
-      color: var(--gray-500);
-      gap: 14px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 80px 20px; color: var(--gray-500); gap: 14px;
     }
     .spinner {
       width: 32px; height: 32px;
-      border: 3px solid var(--gray-200);
-      border-top-color: var(--green-900);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+      border: 3px solid var(--gray-200); border-top-color: var(--green-900);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ===== TOAST ===== */
     .toast {
-      position: fixed;
-      top: 64px; right: 20px;
-      background: var(--green-900);
-      color: var(--white);
-      padding: 9px 16px;
-      border-radius: 7px;
-      font-size: 12px;
-      font-weight: 500;
-      z-index: 999;
-      opacity: 0;
-      transform: translateY(-4px);
-      transition: opacity 0.2s, transform 0.2s;
-      pointer-events: none;
+      position: fixed; top: 64px; right: 20px;
+      background: var(--green-900); color: var(--white);
+      padding: 9px 16px; border-radius: 7px;
+      font-size: 12px; font-weight: 500; z-index: 999;
+      opacity: 0; transform: translateY(-4px);
+      transition: opacity 0.2s, transform 0.2s; pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
-
-    /* ===== VIEW TOGGLE ===== */
-    .view-toggle {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 7px;
-      padding: 3px;
-    }
-    .view-toggle .btn-ghost {
-      padding: 4px 11px;
-      font-size: 12px;
-      border: none;
-      border-radius: 5px;
-    }
-    .view-toggle .btn-ghost.active {
-      background: var(--white);
-      color: var(--green-900);
-      font-weight: 700;
-    }
-
-    /* ===== PROGRAM DOTS ===== */
-    .prog-dots {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 24px 10px;
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-100);
-    }
-    .prog-label {
-      font-size: 11px;
-      color: var(--gray-500);
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      margin-right: 4px;
-    }
-    .prog-overall {
-      padding: 4px 14px;
-      background: var(--green-900);
-      color: var(--white);
-      border-radius: 14px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .prog-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--gray-300);
-      cursor: default;
-      title: '';
-    }
   </style>
 </head>
 <body>
@@ -466,7 +273,7 @@
     <div class="logo">TETR</div>
     <div>
       <div class="topbar-title">Marketing Spend Tracker</div>
-      <div class="topbar-sub">Sep 2026 – Sep 2027 · All values in USD</div>
+      <div class="topbar-sub">Sep 2026 – Sep 2027 · All values in USD · Click any Planned or Actual cell to edit</div>
     </div>
   </div>
   <div class="topbar-right">
@@ -474,45 +281,27 @@
   </div>
 </div>
 
-<!-- SETUP BANNER -->
-<div class="setup-banner" id="setup-banner">
-  ⚙️ <strong>Apps Script URL:</strong>
-  <input type="text" id="api-input" placeholder="https://script.google.com/macros/s/…/exec" />
-  <button class="btn btn-gold" onclick="saveUrl()">Save</button>
-</div>
-
 <!-- DEPT TABS -->
-<div class="dept-bar" id="dept-bar">
+<div class="dept-bar">
   <button class="dept-tab active" onclick="pickDept('PG')"   id="tab-PG">PG</button>
   <button class="dept-tab"        onclick="pickDept('UG')"   id="tab-UG">UG</button>
   <button class="dept-tab"        onclick="pickDept('Exec')" id="tab-Exec">Exec</button>
 </div>
 
-<!-- PROGRAM DOTS (decorative — tracking at Overall level only) -->
+<!-- PROGRAM DOTS -->
 <div class="prog-dots" id="prog-dots">
   <span class="prog-label">Programs</span>
   <span class="prog-overall">Overall</span>
-  <!-- dots injected by JS -->
 </div>
 
 <!-- MAIN -->
 <div class="main">
-
-  <!-- Summary cards -->
-  <div class="summary-row" id="summary-row">
-    <div class="loading"><div class="spinner"></div></div>
-  </div>
-
-  <!-- Year table -->
+  <div class="summary-row" id="summary-row"></div>
   <div class="table-wrap">
     <div id="table-area">
-      <div class="loading">
-        <div class="spinner"></div>
-        <span>Loading from Google Sheets…</span>
-      </div>
+      <div class="loading"><div class="spinner"></div><span>Loading from Google Sheets…</span></div>
     </div>
   </div>
-
 </div>
 
 <script>
@@ -529,31 +318,32 @@ const DEPT_PROGRAMS = {
 };
 
 const MONTHS = [
-  { key: '2026-09', label: 'Sep', year: '26' },
-  { key: '2026-10', label: 'Oct', year: '26' },
-  { key: '2026-11', label: 'Nov', year: '26' },
-  { key: '2026-12', label: 'Dec', year: '26' },
-  { key: '2027-01', label: 'Jan', year: '27' },
-  { key: '2027-02', label: 'Feb', year: '27' },
-  { key: '2027-03', label: 'Mar', year: '27' },
-  { key: '2027-04', label: 'Apr', year: '27' },
-  { key: '2027-05', label: 'May', year: '27' },
-  { key: '2027-06', label: 'Jun', year: '27' },
-  { key: '2027-07', label: 'Jul', year: '27' },
-  { key: '2027-08', label: 'Aug', year: '27' },
-  { key: '2027-09', label: 'Sep', year: '27' },
+  { key: '2026-09', label: "Sep '26" },
+  { key: '2026-10', label: "Oct '26" },
+  { key: '2026-11', label: "Nov '26" },
+  { key: '2026-12', label: "Dec '26" },
+  { key: '2027-01', label: "Jan '27" },
+  { key: '2027-02', label: "Feb '27" },
+  { key: '2027-03', label: "Mar '27" },
+  { key: '2027-04', label: "Apr '27" },
+  { key: '2027-05', label: "May '27" },
+  { key: '2027-06', label: "Jun '27" },
+  { key: '2027-07', label: "Jul '27" },
+  { key: '2027-08', label: "Aug '27" },
+  { key: '2027-09', label: "Sep '27" },
 ];
 
+// Phase definitions — each month maps to a phase index (0–3)
 const PHASES = [
-  { label: 'Pre Application Phase',                keys: ['2026-09', '2026-10'],                                          cls: 'ph-1', colCls: 'phase-1-col', startCls: 'phase-1-col-start' },
-  { label: 'Peak Application Phase',               keys: ['2026-11', '2026-12', '2027-01', '2027-02', '2027-03'],         cls: 'ph-2', colCls: 'phase-2-col', startCls: 'phase-2-col-start' },
-  { label: 'Rejections by Top Universities Phase', keys: ['2027-04', '2027-05', '2027-06', '2027-07'],                    cls: 'ph-3', colCls: 'phase-3-col', startCls: 'phase-3-col-start' },
-  { label: 'Post Cycle',                           keys: ['2027-08', '2027-09'],                                          cls: 'ph-4', colCls: 'phase-4-col', startCls: 'phase-4-col-start' },
+  { label: 'Pre Application Phase',                keys: ['2026-09','2026-10'],                                         cls: 'ph-1', mhCls: 'mh-ph1', subCls: 'sub-ph1', startBorder: 'ph1-start' },
+  { label: 'Peak Application Phase',               keys: ['2026-11','2026-12','2027-01','2027-02','2027-03'],           cls: 'ph-2', mhCls: 'mh-ph2', subCls: 'sub-ph2', startBorder: 'ph2-start' },
+  { label: 'Rejections by Top Universities Phase', keys: ['2027-04','2027-05','2027-06','2027-07'],                     cls: 'ph-3', mhCls: 'mh-ph3', subCls: 'sub-ph3', startBorder: 'ph3-start' },
+  { label: 'Post Cycle',                           keys: ['2027-08','2027-09'],                                         cls: 'ph-4', mhCls: 'mh-ph4', subCls: 'sub-ph4', startBorder: 'ph4-start' },
 ];
 
-// Map each month key → phase info
-const MONTH_PHASE = {};
-PHASES.forEach(ph => ph.keys.forEach((k, i) => { MONTH_PHASE[k] = { ph, isFirst: i === 0 }; }));
+// Quick lookup: month key → phase object
+const MPHASE = {};
+PHASES.forEach(ph => ph.keys.forEach((k, i) => { MPHASE[k] = { ph, isFirst: i === 0 }; }));
 
 const CHANNELS = [
   'Performance Marketing',
@@ -571,36 +361,27 @@ const CHANNELS = [
   'Agent and Counsellor Networks',
 ];
 
-const CAT = 'Marketing Spend by Channel';
+const CAT  = 'Marketing Spend by Channel';
 const PROG = 'Overall';
 
 // ============================================================
 // STATE
 // ============================================================
-let S = {
-  data:  null,
-  dept:  'PG',
-  view:  'both',
-};
+let S = { data: null, dept: 'PG' };
 
 // ============================================================
 // INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('setup-banner').style.display = 'none';
   loadAll();
   renderProgDots();
 });
 
 // ============================================================
-// URL
-// ============================================================
-
-// ============================================================
 // DATA
 // ============================================================
 async function loadAll() {
-  showTableLoading();
+  showLoading();
   try {
     const res  = await fetch(`${API}?action=getAll`);
     const json = await res.json();
@@ -629,280 +410,248 @@ async function post(action, body) {
 }
 
 // ============================================================
-// BUILD LOOKUPS
+// LOOKUPS
 // ============================================================
 function makeLookup(rows, dept, field) {
   const map = {};
   (rows || []).forEach(r => {
     if (r['Department'] === dept && r['Program'] === PROG && r['Category'] === CAT) {
-      const k = r['Metric'] + '||' + r['Month'];
       const v = parseFloat(r[field]);
-      map[k] = isNaN(v) ? null : v;
+      map[r['Metric'] + '||' + r['Month']] = isNaN(v) ? null : v;
     }
   });
   return map;
 }
 
-function getVal(lookup, channel, monthKey) {
-  return lookup[channel + '||' + monthKey] ?? null;
+function getv(lk, channel, monthKey) {
+  return lk[channel + '||' + monthKey] ?? null;
+}
+
+function makeAlertMap(rows, dept) {
+  const map = {};
+  (rows || []).forEach(r => {
+    if (r['Department'] === dept || r['Department'] === 'All') {
+      map[String(r['Metric'])] = {
+        w: parseFloat(r['Warning Percent Over Plan'])  || 10,
+        c: parseFloat(r['Critical Percent Over Plan']) || 20,
+      };
+    }
+  });
+  return map;
 }
 
 // ============================================================
-// RENDER ALL
+// RENDER
 // ============================================================
 function renderAll() {
+  renderProgDots();
   renderSummary();
   renderTable();
-  renderProgDots();
 }
 
 function renderProgDots() {
   const el    = document.getElementById('prog-dots');
   const progs = DEPT_PROGRAMS[S.dept] || [];
   let html = `<span class="prog-label">Programs</span><span class="prog-overall">Overall</span>`;
-  progs.forEach(p => {
-    html += `<div class="prog-dot" title="${esc(p)}"></div>`;
-  });
+  progs.forEach(p => `<div class="prog-dot" title="${esc(p)}"></div>`);
+  progs.forEach(p => { html += `<div class="prog-dot" title="${esc(p)}"></div>`; });
   el.innerHTML = html;
 }
 
-// ============================================================
-// SUMMARY CARDS
-// ============================================================
+// ---- Summary cards ----
 function renderSummary() {
   const pL = makeLookup(S.data.planned, S.dept, 'Planned Amount in USD');
   const aL = makeLookup(S.data.actual,  S.dept, 'Actual Amount in USD');
-
-  let totalPlan = 0, totalActual = 0, hasActual = false;
-  let channelsOver = 0, monthsEntered = new Set();
-
+  let tp = 0, ta = 0, hasAny = false, over = 0, months = new Set();
   CHANNELS.forEach(ch => {
     MONTHS.forEach(m => {
-      const pv = getVal(pL, ch, m.key);
-      const av = getVal(aL, ch, m.key);
-      if (pv) totalPlan += pv;
-      if (av != null) {
-        totalActual += av;
-        hasActual = true;
-        monthsEntered.add(m.key);
-        if (pv && av > pv * 1.1) channelsOver++;
-      }
+      const pv = getv(pL, ch, m.key), av = getv(aL, ch, m.key);
+      if (pv) tp += pv;
+      if (av != null) { ta += av; hasAny = true; months.add(m.key); if (pv && av > pv * 1.1) over++; }
     });
   });
-
-  const spent  = hasActual ? totalActual : null;
-  const remain = spent != null ? totalPlan - spent : null;
-  const pct    = spent != null && totalPlan ? (spent / totalPlan * 100) : null;
-
-  document.getElementById('summary-row').innerHTML = `
-    ${sc('Annual Planned Budget',  fmtUSD(totalPlan))}
-    ${sc('Spent to Date',          spent != null ? fmtUSD(spent) : '—', spent != null && spent > totalPlan ? 'red' : '')}
-    ${sc('Remaining Budget',       remain != null ? fmtUSD(remain) : '—', remain != null && remain < 0 ? 'red' : '')}
-    ${sc('Budget Used',            pct != null ? pct.toFixed(1)+'%' : '—', pct > 100 ? 'red' : pct > 85 ? 'amber' : '')}
-    ${sc('Months With Data',       monthsEntered.size + ' / 13')}
-    ${sc('Channels Over Budget',   channelsOver > 0 ? channelsOver : '0', channelsOver > 0 ? 'red' : '')}
-  `;
+  const remain = hasAny ? tp - ta : null;
+  const pct    = hasAny && tp ? (ta / tp * 100) : null;
+  document.getElementById('summary-row').innerHTML =
+    sc('Annual Planned',   fmtK(tp)) +
+    sc('Spent to Date',    hasAny ? fmtK(ta) : '—',    hasAny && ta > tp ? 'red' : '') +
+    sc('Remaining',        remain != null ? fmtK(remain) : '—', remain != null && remain < 0 ? 'red' : '') +
+    sc('Budget Used',      pct != null ? pct.toFixed(1)+'%' : '—', pct > 100 ? 'red' : pct > 85 ? 'amber' : '') +
+    sc('Months With Data', months.size + ' / 13') +
+    sc('Channels Over Budget', over > 0 ? String(over) : '0', over > 0 ? 'red' : '');
 }
-
-function sc(label, value, cls='') {
-  return `<div class="sum-card ${cls?'sum-'+cls:''}">
-    <div class="sum-label">${label}</div>
-    <div class="sum-value">${value}</div>
-  </div>`;
+function sc(l, v, c='') {
+  return `<div class="sum-card ${c?'sum-'+c:''}"><div class="sum-label">${l}</div><div class="sum-value">${v}</div></div>`;
 }
 
 // ============================================================
 // YEAR TABLE
 // ============================================================
 function renderTable() {
-  const pL = makeLookup(S.data.planned, S.dept, 'Planned Amount in USD');
-  const aL = makeLookup(S.data.actual,  S.dept, 'Actual Amount in USD');
+  const pL     = makeLookup(S.data.planned, S.dept, 'Planned Amount in USD');
+  const aL     = makeLookup(S.data.actual,  S.dept, 'Actual Amount in USD');
   const alerts = makeAlertMap(S.data.alerts, S.dept);
 
-  const view = S.view;
+  // Total columns: 1 (label) + 3 (annual) + 13*3 (months) = 43
+  // colgroup
+  let cols = `<col class="col-label">`;
+  cols += `<col class="col-sub"><col class="col-sub"><col class="col-sub">`; // annual
+  MONTHS.forEach(() => { cols += `<col class="col-sub"><col class="col-sub"><col class="col-sub">`; });
 
   // ---- Phase header row ----
-  let phaseRow = `<tr class="phase-row">
-    <th class="ph-label col-label">${esc(S.dept)} — Overall</th>`;
+  let phRow = `<tr class="phase-row">
+    <th style="background:var(--green-900);"></th>
+    <th colspan="3" class="th-annual-phase">Annual Total</th>`;
   PHASES.forEach(ph => {
-    phaseRow += `<th class="${ph.cls} col-month" colspan="${ph.keys.length}" style="text-align:center">${ph.label}</th>`;
+    phRow += `<th colspan="${ph.keys.length * 3}" class="${ph.cls}">${ph.label}</th>`;
   });
-  phaseRow += `<th class="ph-total col-total">Annual Total</th></tr>`;
+  phRow += `</tr>`;
 
   // ---- Month header row ----
-  let monthRow = `<tr class="month-row">
-    <th class="mh-label col-label">Channel</th>`;
+  let moRow = `<tr class="month-row">
+    <th style="background:var(--gray-100);border-bottom:1px solid var(--gray-300)"></th>
+    <th colspan="3" class="th-annual-month">Annual Total</th>`;
   MONTHS.forEach(m => {
-    const phInfo = MONTH_PHASE[m.key];
-    const colCls = phInfo ? (phInfo.isFirst ? phInfo.ph.startCls : phInfo.ph.colCls) : '';
-    monthRow += `<th class="mh-label col-month ${colCls}">${m.label}<span style="font-size:10px;opacity:0.6"> '${m.year}</span></th>`;
+    const mp = MPHASE[m.key];
+    const cls = mp ? (mp.isFirst ? mp.ph.startBorder + ' ' + mp.ph.mhCls : mp.ph.mhCls) : '';
+    moRow += `<th colspan="3" class="${cls}">${m.label}</th>`;
   });
-  monthRow += `<th class="mh-total col-total">Total</th></tr>`;
+  moRow += `</tr>`;
 
-  // ---- Sub-header (planned/actual labels) in 'both' view ----
-  let subRow = '';
-  if (view === 'both') {
-    subRow = `<tr class="sub-row"><th class="sub-label">↕ Click planned or actual to edit</th>`;
-    MONTHS.forEach(() => { subRow += `<th>Plan / Act</th>`; });
-    subRow += `<th>Plan / Act</th></tr>`;
-  } else {
-    subRow = `<tr class="sub-row"><th class="sub-label">Click any cell to edit ${view === 'planned' ? 'planned' : 'actual'} value</th>`;
-    MONTHS.forEach(() => { subRow += `<th>${view === 'planned' ? 'Planned' : 'Actual'}</th>`; });
-    subRow += `<th>${view === 'planned' ? 'Planned' : 'Actual'}</th></tr>`;
-  }
+  // ---- Sub-column header row ----
+  let subRow = `<tr class="subcol-row">
+    <th class="th-channel-sub">Channel</th>
+    <th class="sub-plan sub-ann">Plan</th>
+    <th class="sub-act  sub-ann">Actual</th>
+    <th class="sub-var  sub-ann">Variation</th>`;
+  MONTHS.forEach(m => {
+    const mp  = MPHASE[m.key];
+    const sc2 = mp ? mp.ph.subCls : '';
+    const bc  = mp && mp.isFirst ? mp.ph.startBorder : '';
+    subRow += `<th class="sub-plan ${sc2} ${bc}">Plan</th>
+               <th class="sub-act  ${sc2}">Actual</th>
+               <th class="sub-var  ${sc2}">Variation</th>`;
+  });
+  subRow += `</tr>`;
 
   // ---- Data rows ----
+  // Pre-compute annual sums per channel
   let dataRows = '';
+  const totals = { plan: {}, act: {}, hasAct: {} }; // by monthKey
+  MONTHS.forEach(m => { totals.plan[m.key] = 0; totals.act[m.key] = null; totals.hasAct[m.key] = false; });
+
   CHANNELS.forEach(ch => {
-    let annualPlan = 0, annualActual = 0, hasAnyActual = false;
+    let annPlan = 0, annAct = null, hasAnnAct = false;
     let cells = '';
 
     MONTHS.forEach(m => {
-      const phInfo  = MONTH_PHASE[m.key];
-      const colCls  = phInfo ? (phInfo.isFirst ? phInfo.ph.startCls : phInfo.ph.colCls) : '';
-      const pv      = getVal(pL, ch, m.key);
-      const av      = getVal(aL, ch, m.key);
-      const thr     = alerts[ch] || alerts['All'] || { w: 10, c: 20 };
-      const flag    = calcFlag(av, pv, thr.w, thr.c);
+      const pv  = getv(pL, ch, m.key);
+      const av  = getv(aL, ch, m.key);
+      const thr = alerts[ch] || alerts['All'] || { w: 10, c: 20 };
+      const flg = flag(av, pv, thr.w, thr.c);
 
-      if (pv != null) annualPlan   += pv;
-      if (av != null) { annualActual += av; hasAnyActual = true; }
+      if (pv != null) { annPlan += pv; totals.plan[m.key] += pv; }
+      if (av != null) {
+        annAct = (annAct || 0) + av;
+        hasAnnAct = true;
+        if (!totals.hasAct[m.key]) totals.act[m.key] = 0;
+        totals.act[m.key] += av;
+        totals.hasAct[m.key] = true;
+      }
 
-      cells += buildCell(ch, m.key, pv, av, flag, view, colCls);
+      const mp  = MPHASE[m.key];
+      const bc  = mp && mp.isFirst ? mp.ph.startBorder : '';
+      cells += triCells(ch, m.key, pv, av, flg, bc, S.dept);
     });
 
-    // Annual totals cell
-    const annFlag = calcFlag(hasAnyActual ? annualActual : null, annualPlan, 10, 20);
-    let annCell = `<td class="td-annual">`;
-    if (view === 'planned' || view === 'both') {
-      annCell += `<div class="cell-planned">${fmtUSD(annualPlan || null)}</div>`;
-    }
-    if ((view === 'actual' || view === 'both') && hasAnyActual) {
-      annCell += `<div class="cell-actual ${annFlag}">${fmtUSD(annualActual)}</div>`;
-    }
-    annCell += `</td>`;
+    // Annual cells
+    const annFlg  = flag(hasAnnAct ? annAct : null, annPlan, 10, 20);
+    const annVar  = hasAnnAct && annAct != null ? annAct - annPlan : null;
+    const annPlanFmt = fmtUSD(annPlan || null);
+    const annActFmt  = fmtUSD(hasAnnAct ? annAct : null);
+    const annVarFmt  = fmtVar(annVar);
+    const annVarCls  = varCls(annVar);
 
     dataRows += `<tr>
       <td class="td-label">${esc(ch)}</td>
+      <td class="td-sub td-plan ann-group" onclick="startEdit(this,${q(S.dept)},${q(ch)},'annual','planned')">${annPlanFmt}</td>
+      <td class="td-sub td-act ${annFlg}"  onclick="startEdit(this,${q(S.dept)},${q(ch)},'annual','actual')">${annActFmt}</td>
+      <td class="td-sub td-var ${annVarCls} ann-group-right">${annVarFmt}</td>
       ${cells}
-      ${annCell}
     </tr>`;
   });
 
   // ---- Total row ----
   let totalRow = `<tr class="row-total"><td class="td-label">TOTAL</td>`;
-  let grandPlan = 0, grandActual = 0, hasGrandActual = false;
+  let grandPlan = 0, grandAct = null, hasGrand = false;
+
+  // Annual total cells
+  MONTHS.forEach(m => {
+    grandPlan += totals.plan[m.key] || 0;
+    if (totals.hasAct[m.key] && totals.act[m.key] != null) {
+      grandAct = (grandAct || 0) + totals.act[m.key];
+      hasGrand = true;
+    }
+  });
+  const grandVar    = hasGrand ? grandAct - grandPlan : null;
+  const grandFlg    = flag(hasGrand ? grandAct : null, grandPlan, 10, 20);
+  totalRow += `
+    <td class="td-sub td-plan ann-group">${fmtUSD(grandPlan || null)}</td>
+    <td class="td-sub td-act ${grandFlg}">${fmtUSD(hasGrand ? grandAct : null)}</td>
+    <td class="td-sub td-var ${varCls(grandVar)} ann-group-right">${fmtVar(grandVar)}</td>`;
 
   MONTHS.forEach(m => {
-    const phInfo = MONTH_PHASE[m.key];
-    const colCls = phInfo ? (phInfo.isFirst ? phInfo.ph.startCls : phInfo.ph.colCls) : '';
-    let mPlan = 0, mActual = 0, hasMActual = false;
-
-    CHANNELS.forEach(ch => {
-      const pv = getVal(pL, ch, m.key);
-      const av = getVal(aL, ch, m.key);
-      if (pv != null) mPlan   += pv;
-      if (av != null) { mActual += av; hasMActual = true; }
-    });
-
-    grandPlan   += mPlan;
-    if (hasMActual) { grandActual += mActual; hasGrandActual = true; }
-
-    const flag = calcFlag(hasMActual ? mActual : null, mPlan, 10, 20);
-    totalRow += buildCell(null, m.key, mPlan || null, hasMActual ? mActual : null, flag, view, colCls);
+    const tp  = totals.plan[m.key] || null;
+    const ta2 = totals.hasAct[m.key] ? totals.act[m.key] : null;
+    const tv  = ta2 != null && tp != null ? ta2 - tp : null;
+    const flg = flag(ta2, tp, 10, 20);
+    const mp  = MPHASE[m.key];
+    const bc  = mp && mp.isFirst ? mp.ph.startBorder : '';
+    totalRow += `
+      <td class="td-sub td-plan ${bc}">${fmtUSD(tp)}</td>
+      <td class="td-sub td-act ${flg}">${fmtUSD(ta2)}</td>
+      <td class="td-sub td-var ${varCls(tv)}">${fmtVar(tv)}</td>`;
   });
-
-  // Grand total annual cell
-  let grandCell = `<td class="td-annual">
-    <div class="cell-planned" style="font-weight:700">${fmtUSD(grandPlan || null)}</div>`;
-  if (hasGrandActual) {
-    const gf = calcFlag(grandActual, grandPlan, 10, 20);
-    grandCell += `<div class="cell-actual ${gf}">${fmtUSD(grandActual)}</div>`;
-  }
-  grandCell += `</td>`;
-  totalRow += grandCell + `</tr>`;
+  totalRow += `</tr>`;
 
   document.getElementById('table-area').innerHTML = `
     <table class="year-table">
-      <colgroup>
-        <col class="col-label">
-        ${MONTHS.map(() => `<col class="col-month">`).join('')}
-        <col class="col-total">
-      </colgroup>
-      <thead>${phaseRow}${monthRow}${subRow}</thead>
+      <colgroup>${cols}</colgroup>
+      <thead>${phRow}${moRow}${subRow}</thead>
       <tbody>${dataRows}${totalRow}</tbody>
     </table>`;
 }
 
-function buildCell(channel, monthKey, pv, av, flag, view, colCls) {
-  const dept    = S.dept;
-  const isTotal = channel === null;
-
-  let inner = '';
-
-  if (view === 'planned') {
-    inner = `<div class="cell-planned">${fmtUSD(pv)}</div>`;
-  } else if (view === 'actual') {
-    inner = `<div class="cell-actual ${av != null ? flag : 'empty'}">${fmtUSD(av)}</div>`;
-  } else { // both
-    inner = `<div class="cell-planned">${fmtUSD(pv)}</div>
-             <div class="cell-actual ${av != null ? flag : 'empty'}">${fmtUSD(av)}</div>`;
-  }
-
-  if (isTotal) {
-    return `<td class="val-cell ${colCls}"><div class="cell-inner">${inner}</div></td>`;
-  }
-
-  // Determine which value to edit on click
-  const editType = view === 'actual' ? 'actual' : 'planned';
-  const onClick  = view === 'both'
-    ? '' // 'both' cells handled differently below
-    : `onclick="startEdit(this,${q(dept)},${q(channel)},${q(monthKey)},${q(editType)})"`;
-
-  if (view === 'both') {
-    // Split cell: top half edits planned, bottom half edits actual
-    return `<td class="val-cell ${colCls}">
-      <div class="cell-inner" style="gap:3px">
-        <div class="cell-planned" style="cursor:pointer;padding:1px 4px;border-radius:3px"
-             onclick="startEdit(this.closest('td'),${q(dept)},${q(channel)},${q(monthKey)},'planned')"
-             title="Click to edit planned">${fmtUSD(pv)}</div>
-        <div class="cell-actual ${av != null ? flag : 'empty'}" style="cursor:pointer"
-             onclick="startEdit(this.closest('td'),${q(dept)},${q(channel)},${q(monthKey)},'actual')"
-             title="Click to edit actual">${av != null ? fmtUSD(av) : '+ actual'}</div>
-      </div>
-    </td>`;
-  }
-
-  return `<td class="val-cell ${colCls}" ${onClick}>
-    <div class="cell-inner">${inner}</div>
-  </td>`;
+// Build 3 sub-cells (Plan | Actual | Variation) for a single channel+month
+function triCells(ch, monthKey, pv, av, flg, borderCls, dept) {
+  const variation = (pv != null && av != null) ? av - pv : null;
+  return `
+    <td class="td-sub td-plan ${borderCls}" onclick="startEdit(this,${q(dept)},${q(ch)},${q(monthKey)},'planned')">${fmtUSD(pv)}</td>
+    <td class="td-sub td-act ${flg}"        onclick="startEdit(this,${q(dept)},${q(ch)},${q(monthKey)},'actual')">${fmtUSD(av)}</td>
+    <td class="td-sub td-var ${varCls(variation)}">${fmtVar(variation)}</td>`;
 }
 
 // ============================================================
 // INLINE EDIT
 // ============================================================
-function startEdit(cell, dept, channel, monthKey, type) {
+function startEdit(cell, dept, ch, monthKey, type) {
   if (cell.querySelector('input')) return;
+  if (monthKey === 'annual') { alert('Enter values in individual month cells — the annual column is calculated automatically.'); return; }
 
   const field = type === 'actual' ? 'Actual Amount in USD' : 'Planned Amount in USD';
   const store = type === 'actual' ? S.data.actual : S.data.planned;
   const ex    = (store || []).find(r =>
     r['Department'] === dept && r['Program'] === PROG &&
-    r['Category'] === CAT   && r['Metric'] === channel && r['Month'] === monthKey
+    r['Category']   === CAT  && r['Metric']  === ch  && r['Month'] === monthKey
   );
-  const curVal = ex ? parseFloat(ex[field]) : '';
+  const cur = ex ? parseFloat(ex[field]) : '';
 
   const inp = document.createElement('input');
-  inp.type        = 'number';
-  inp.value       = isNaN(curVal) ? '' : curVal;
-  inp.placeholder = '0';
-  inp.min         = '0';
+  inp.type = 'number'; inp.value = isNaN(cur) ? '' : cur;
+  inp.placeholder = '0'; inp.min = '0';
 
-  const inner = cell.querySelector('.cell-inner');
-  inner.innerHTML = '';
-  inner.appendChild(inp);
-  inp.focus();
-  inp.select();
+  cell.innerHTML = ''; cell.appendChild(inp);
+  inp.focus(); inp.select();
 
   async function commit() {
     const val = inp.value.trim();
@@ -910,30 +659,27 @@ function startEdit(cell, dept, channel, monthKey, type) {
     const amount = parseFloat(val);
     if (isNaN(amount)) { renderTable(); return; }
 
-    inner.innerHTML = '<span style="font-size:11px;color:var(--gray-400)">…</span>';
-
+    cell.innerHTML = '<span style="font-size:11px;color:var(--gray-400)">…</span>';
     try {
       await post(type === 'actual' ? 'saveActual' : 'savePlanned', {
         department: dept, program: PROG, category: CAT,
-        metric: channel, month: monthKey, amount
+        metric: ch, month: monthKey, amount
       });
-      // Update local cache
-      if (ex) {
-        ex[field] = amount;
-      } else {
-        const nr = { Department: dept, Program: PROG, Category: CAT, Metric: channel, Month: monthKey };
+      if (ex) ex[field] = amount;
+      else {
+        const nr = { Department: dept, Program: PROG, Category: CAT, Metric: ch, Month: monthKey };
         nr[field] = amount;
         store.push(nr);
       }
       showToast('✓ Saved');
       renderAll();
     } catch(e) {
-      inner.innerHTML = `<span style="color:var(--red);font-size:11px">Error</span>`;
+      cell.innerHTML = `<span style="color:var(--red);font-size:11px">Error</span>`;
       setTimeout(renderTable, 1500);
     }
   }
 
-  inp.addEventListener('blur',    commit);
+  inp.addEventListener('blur', commit);
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
     if (e.key === 'Escape') renderTable();
@@ -941,71 +687,68 @@ function startEdit(cell, dept, channel, monthKey, type) {
 }
 
 // ============================================================
-// FLAGS
-// ============================================================
-function calcFlag(actual, planned, wPct, cPct) {
-  if (actual == null || planned == null || planned === 0) return 'empty';
-  const diff = ((actual - planned) / Math.abs(planned)) * 100;
-  if (diff > cPct) return 'critical';
-  if (diff > wPct) return 'warn';
-  return 'ok';
-}
-
-function makeAlertMap(rows, dept) {
-  const map = {};
-  (rows || []).forEach(r => {
-    const d = r['Department'], p = r['Program'], m = r['Metric'];
-    if (d === dept || d === 'All') {
-      const w = parseFloat(r['Warning Percent Over Plan'])  || 10;
-      const c = parseFloat(r['Critical Percent Over Plan']) || 20;
-      map[String(m)] = { w, c };
-    }
-  });
-  return map;
-}
-
-// ============================================================
-// DEPT + VIEW
+// DEPT
 // ============================================================
 function pickDept(dept) {
   S.dept = dept;
   document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
-  const tab = document.getElementById('tab-' + dept);
-  if (tab) tab.classList.add('active');
+  document.getElementById('tab-' + dept).classList.add('active');
   renderAll();
 }
 
+// ============================================================
+// FLAG / FORMAT HELPERS
+// ============================================================
+function flag(actual, planned, wPct, cPct) {
+  if (actual == null || planned == null || planned === 0) return 'empty';
+  const d = ((actual - planned) / Math.abs(planned)) * 100;
+  if (d > cPct) return 'critical';
+  if (d > wPct) return 'warn';
+  return 'ok';
+}
 
-// ============================================================
-// UTILS
-// ============================================================
+function varCls(v) {
+  if (v == null) return 'empty';
+  if (v > 0)    return 'over';
+  if (v < 0)    return 'under';
+  return 'zero';
+}
+
+function fmtVar(v) {
+  if (v == null) return '—';
+  if (v === 0)   return '$0';
+  const neg = v < 0;
+  return (neg ? '-$' : '+$') + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
 function fmtUSD(val) {
-  if (val == null || isNaN(val) || val === 0 && val !== 0) {
-    if (val === null || val === undefined) return '—';
-  }
+  if (val == null || isNaN(val)) return '—';
   if (val === 0) return '$0';
   const neg = val < 0;
   return (neg ? '-$' : '$') + Math.abs(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
 
+function fmtK(val) {
+  if (val == null || isNaN(val)) return '—';
+  if (Math.abs(val) >= 1000000) return (val < 0 ? '-' : '') + '$' + (Math.abs(val)/1000000).toFixed(1) + 'M';
+  if (Math.abs(val) >= 1000)    return (val < 0 ? '-' : '') + '$' + (Math.abs(val)/1000).toFixed(0) + 'K';
+  return '$' + val.toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function showLoading() {
+  document.getElementById('table-area').innerHTML =
+    `<div class="loading"><div class="spinner"></div><span>Loading…</span></div>`;
+  document.getElementById('summary-row').innerHTML = '';
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function showTableLoading() {
-  document.getElementById('table-area').innerHTML = `
-    <div class="loading"><div class="spinner"></div><span>Loading…</span></div>`;
-  document.getElementById('summary-row').innerHTML = `
-    <div class="loading" style="padding:20px"><div class="spinner"></div></div>`;
-}
-
 function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function q(s) {
   return "'" + String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
