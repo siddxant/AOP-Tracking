@@ -470,11 +470,6 @@
     </div>
   </div>
   <div class="topbar-right">
-    <div class="view-toggle">
-      <button class="btn btn-ghost active" id="vbtn-planned"  onclick="setView('planned')">Planned</button>
-      <button class="btn btn-ghost"        id="vbtn-actual"   onclick="setView('actual')">Actual</button>
-      <button class="btn btn-ghost"        id="vbtn-both"     onclick="setView('both')">Both</button>
-    </div>
     <button class="btn btn-gold" onclick="loadAll()">↻ Refresh</button>
   </div>
 </div>
@@ -585,7 +580,7 @@ const PROG = 'Overall';
 let S = {
   data:  null,
   dept:  'PG',
-  view:  'planned',  // 'planned' | 'actual' | 'both'
+  view:  'both',
 };
 
 // ============================================================
@@ -980,13 +975,6 @@ function pickDept(dept) {
   renderAll();
 }
 
-function setView(v) {
-  S.view = v;
-  ['planned','actual','both'].forEach(x => {
-    document.getElementById('vbtn-'+x).classList.toggle('active', x === v);
-  });
-  renderTable();
-}
 
 // ============================================================
 // UTILS
