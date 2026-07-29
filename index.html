@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TETR — AOP Expense Tracker</title>
+  <style>
+    /* ===== TETR DESIGN TOKENS ===== */
+    :root {
+      --green-900: #1B4332;
+      --green-700: #2D6A4F;
+      --green-100: #D1FAE5;
+      --green-50:  #ECFDF5;
+      --gold:      #C9A227;
+      --gold-100:  #FEF9C3;
+      --red:       #DC2626;
+      --red-100:   #FEE2E2;
+      --amber:     #D97706;
+      --amber-100: #FEF3C7;
+      --gray-900:  #111827;
+      --gray-700:  #374151;
+      --gray-500:  #6B7280;
+      --gray-300:  #D1D5DB;
+      --gray-200:  #E5E7EB;
+      --gray-100:  #F3F4F6;
+      --gray-50:   #F9FAFB;
+      --white:     #FFFFFF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--green-900);
+      color: var(--white);
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      background: var(--gold);
+      color: var(--green-900);
+      font-weight: 900;
+      font-size: 17px;
+      letter-spacing: 2px;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .topbar-title { font-size: 16px; font-weight: 600; }
+    .topbar-sub   { font-size: 11px; opacity: 0.65; margin-top: 1px; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 4px 8px;
+    }
+
+    .month-nav button {
+      background: none;
+      border: none;
+      color: var(--white);
+      cursor: pointer;
+      font-size: 15px;
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .month-nav button:hover { background: rgba(255,255,255,0.18); }
+
+    #month-label {
+      font-size: 14px;
+      font-weight: 600;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .btn {
+      padding: 7px 15px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-ghost  { background: rgba(255,255,255,0.1); color: var(--white); border: 1px solid rgba(255,255,255,0.25); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+    .btn-gold   { background: var(--gold); color: var(--green-900); font-weight: 700; }
+    .btn-gold:hover { filter: brightness(1.08); }
+    .btn-green  { background: var(--green-900); color: var(--white); }
+    .btn-green:hover { background: var(--green-700); }
+    .btn-danger { background: var(--red-100); color: var(--red); border: 1px solid #FECACA; }
+    .btn-neutral{ background: var(--gray-100); color: var(--gray-700); border: 1px solid var(--gray-200); }
+
+    .edit-badge {
+      background: var(--gold);
+      color: var(--green-900);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== MAIN ===== */
+    .main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 22px 28px 60px;
+    }
+
+    /* ===== SETUP BANNER ===== */
+    .setup-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--amber-100);
+      border: 1.5px solid var(--gold);
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .setup-banner input {
+      flex: 1;
+      padding: 7px 12px;
+      border: 1.5px solid var(--gold);
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      min-width: 0;
+    }
+    .setup-banner input:focus { border-color: var(--green-900); }
+
+    /* ===== DEPT TABS ===== */
+    .dept-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      border-bottom: 2px solid var(--gray-200);
+      margin-bottom: 18px;
+    }
+
+    .dept-tab {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 22px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--gray-500);
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      border-radius: 6px 6px 0 0;
+      transition: all 0.15s;
+    }
+    .dept-tab:hover  { color: var(--green-900); background: var(--gray-100); }
+    .dept-tab.active { color: var(--green-900); border-bottom-color: var(--green-900); font-weight: 700; }
+
+    .dept-tab .remove-btn {
+      display: none;
+      width: 18px; height: 18px;
+      background: var(--red-100);
+      border: none; border-radius: 50%;
+      color: var(--red);
+      font-size: 10px; font-weight: 700;
+      cursor: pointer;
+      align-items: center; justify-content: center;
+    }
+    body.edit-mode .dept-tab .remove-btn { display: inline-flex; }
+
+    .add-dept-btn {
+      padding: 8px 14px;
+      background: none;
+      border: none;
+      color: var(--gray-500);
+      font-size: 22px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.15s;
+      margin-bottom: 2px;
+    }
+    .add-dept-btn:hover { background: var(--gray-100); color: var(--green-900); }
+
+    /* ===== PROGRAM PILLS ===== */
+    .program-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .prog-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 16px;
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-700);
+      transition: all 0.15s;
+    }
+    .prog-pill:hover  { border-color: var(--green-900); color: var(--green-900); }
+    .prog-pill.active { background: var(--green-900); border-color: var(--green-900); color: var(--white); }
+
+    .prog-pill .remove-btn {
+      display: none;
+      width: 16px; height: 16px;
+      background: rgba(255,255,255,0.25);
+      border: none; border-radius: 50%;
+      color: inherit;
+      font-size: 10px; font-weight: 700;
+      cursor: pointer;
+      align-items: center; justify-content: center;
+    }
+    body.edit-mode .prog-pill .remove-btn { display: inline-flex; }
+
+    .add-prog-pill {
+      padding: 6px 16px;
+      background: var(--gold-100);
+      border: 1.5px dashed var(--gold);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--green-900);
+      transition: all 0.15s;
+    }
+    .add-prog-pill:hover { background: #FEF08A; }
+
+    /* ===== SUMMARY STAT CARDS ===== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 4px; }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--green-900); }
+    .stat-note  { font-size: 11px; color: var(--gray-500); margin-top: 3px; }
+    .stat-red   .stat-value { color: var(--red); }
+    .stat-amber .stat-value { color: var(--amber); }
+
+    /* ===== SECTION TABLES ===== */
+    .section {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      margin-bottom: 22px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--green-900);
+      color: var(--white);
+      padding: 11px 20px;
+    }
+    .section-head-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+    .section-head-meta  { font-size: 12px; opacity: 0.65; }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table thead th {
+      background: var(--gray-100);
+      padding: 9px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .data-table thead th.r { text-align: right; }
+
+    .data-table tbody td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: var(--gray-50); }
+
+    .td-label { font-weight: 500; color: var(--gray-700); }
+    .td-num   { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
+    .td-pos   { text-align: right; color: #16A34A; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .td-neg   { text-align: right; color: var(--red); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    /* ===== FLAG CHIPS ===== */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .chip-ok       { background: var(--green-100); color: #166534; }
+    .chip-warn     { background: var(--amber-100); color: #92400E; }
+    .chip-critical { background: var(--red-100);   color: #991B1B; }
+    .chip-empty    { background: var(--gray-100);  color: var(--gray-500); }
+
+    /* ===== EDITABLE CELL ===== */
+    .editable {
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.1s;
+      position: relative;
+    }
+    .editable:hover { background: var(--green-50); }
+    .editable:hover::after {
+      content: ' ✎';
+      font-size: 11px;
+      color: var(--green-700);
+      opacity: 0.7;
+    }
+
+    .editable input {
+      width: 130px;
+      padding: 4px 8px;
+      border: 2px solid var(--green-900);
+      border-radius: 5px;
+      font-size: 13px;
+      text-align: right;
+      font-family: inherit;
+      outline: none;
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(27,67,50,0.1);
+    }
+
+    /* ===== TOTALS ROW ===== */
+    .row-total td {
+      background: var(--gold-100) !important;
+      font-weight: 700;
+      border-top: 2px solid var(--gold) !important;
+    }
+
+    /* ===== LOADING ===== */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      color: var(--gray-500);
+      gap: 14px;
+    }
+    .spinner {
+      width: 34px; height: 34px;
+      border: 3px solid var(--gray-200);
+      border-top-color: var(--green-900);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== SAVED TOAST ===== */
+    .toast {
+      position: fixed;
+      top: 68px; right: 24px;
+      background: var(--green-900);
+      color: var(--white);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ===== MODAL ===== */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 28px;
+      width: 420px;
+      max-width: 95vw;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 17px; font-weight: 700; color: var(--green-900); margin-bottom: 16px; }
+    .modal p  { color: var(--gray-700); margin-bottom: 16px; font-size: 14px; }
+    .modal label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+    .modal input, .modal select {
+      width: 100%; padding: 9px 13px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 7px; font-size: 14px;
+      font-family: inherit; outline: none; margin-bottom: 14px;
+      transition: border-color 0.15s;
+    }
+    .modal input:focus, .modal select:focus { border-color: var(--green-900); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--gray-500);
+    }
+    .empty-state h4 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--gray-700); }
+    .empty-state p  { font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<!-- ===== SAVED TOAST ===== -->
+<div class="toast" id="toast">✓ Saved to Google Sheets</div>
+
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">TETR</div>
+    <div>
+      <div class="topbar-title">AOP Expense Tracker</div>
+      <div class="topbar-sub">Planned vs Actual — Monthly View · All values in USD</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="month-nav">
+      <button onclick="shiftMonth(-1)" title="Previous month">&#8249;</button>
+      <span id="month-label">— —</span>
+      <button onclick="shiftMonth(+1)" title="Next month">&#8250;</button>
+    </div>
+    <span class="edit-badge" id="edit-badge" style="display:none">Editing</span>
+    <button class="btn btn-ghost" id="edit-btn" onclick="toggleEdit()">Edit Structure</button>
+    <button class="btn btn-gold"  onclick="loadAll()">↻ Refresh</button>
+  </div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+  <!-- Setup banner -->
+  <div class="setup-banner" id="setup-banner">
+    ⚙️
+    <span style="white-space:nowrap;font-weight:600">Apps Script URL:</span>
+    <input type="text" id="api-input" placeholder="https://script.google.com/macros/s/…/exec" />
+    <button class="btn btn-gold" onclick="saveUrl()">Save</button>
+  </div>
+
+  <!-- Dept tabs -->
+  <div class="dept-bar" id="dept-bar"></div>
+
+  <!-- Program pills -->
+  <div class="program-bar" id="prog-bar"></div>
+
+  <!-- Content -->
+  <div id="content">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <span>Connecting to Google Sheets…</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="overlay" id="overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<!-- ===== SCRIPT ===== -->
+<script>
+// ============================================================
+// CONFIG & STATE
+// ============================================================
+const URL_KEY = 'tetr_api_url';
+let API = localStorage.getItem(URL_KEY) || '';
+
+let S = {            // app state
+  data:    null,
+  dept:    null,
+  prog:    null,
+  month:   null,
+  editing: false
+};
+
+// All metric definitions
+// type: 'cost' → flag if actual > plan | 'rev'/'margin' → flag if actual < plan
+// unit: '$' | '%' | '' (count)
+const CATS = {
+  'P&L Summary': [
+    { m: 'Number of Students',        type: 'rev',    unit: ''  },
+    { m: 'ARPS',                      type: 'rev',    unit: '$' },
+    { m: 'Revenue',                   type: 'rev',    unit: '$' },
+    { m: 'Delivery Cost',             type: 'cost',   unit: '$' },
+    { m: 'Gross Margin',              type: 'margin', unit: '$' },
+    { m: 'Gross Margin Percent',      type: 'margin', unit: '%' },
+    { m: 'Marketing Spend',           type: 'cost',   unit: '$' },
+    { m: 'Contribution Margin',       type: 'margin', unit: '$' },
+    { m: 'Contribution Margin Percent',type:'margin', unit: '%' },
+    { m: 'Team Cost',                 type: 'cost',   unit: '$' },
+    { m: 'Net Margin',                type: 'margin', unit: '$' },
+    { m: 'Net Margin Percent',        type: 'margin', unit: '%' },
+  ],
+  'Marketing Spend by Channel': [
+    { m: 'Performance Marketing',           type: 'cost', unit: '$' },
+    { m: 'Offline Events',                  type: 'cost', unit: '$' },
+    { m: 'Influencer Marketing',            type: 'cost', unit: '$' },
+    { m: 'Agent and Counsellor Networks',   type: 'cost', unit: '$' },
+    { m: 'Interviewer Cost',                type: 'cost', unit: '$' },
+    { m: 'Brand',                           type: 'cost', unit: '$' },
+    { m: 'WATI',                            type: 'cost', unit: '$' },
+    { m: 'Printing and Tools',              type: 'cost', unit: '$' },
+    { m: 'Conversion Incentive',            type: 'cost', unit: '$' },
+    { m: 'PR',                              type: 'cost', unit: '$' },
+    { m: 'Affiliate Marketing',             type: 'cost', unit: '$' },
+    { m: 'Buddy',                           type: 'cost', unit: '$' },
+    { m: 'Online Events',                   type: 'cost', unit: '$' },
+  ],
+  'Headcount and Salary': [
+    { m: 'Admissions Headcount',  type: 'rev',  unit: ''  },
+    { m: 'Admissions Budget',     type: 'cost', unit: '$' },
+    { m: 'Delivery Headcount',    type: 'rev',  unit: ''  },
+    { m: 'Delivery Budget',       type: 'cost', unit: '$' },
+    { m: 'Careers Headcount',     type: 'rev',  unit: ''  },
+    { m: 'Careers Budget',        type: 'cost', unit: '$' },
+    { m: 'Marketing Headcount',   type: 'rev',  unit: ''  },
+    { m: 'Marketing Budget',      type: 'cost', unit: '$' },
+  ]
+};
+
+// ============================================================
+// BOOT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  S.month = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  updateMonthLabel();
+
+  if (API) {
+    document.getElementById('setup-banner').style.display = 'none';
+    document.getElementById('api-input').value = API;
+    loadAll();
+  }
+});
+
+// ============================================================
+// URL SAVE
+// ============================================================
+function saveUrl() {
+  const v = document.getElementById('api-input').value.trim();
+  if (!v.includes('script.google.com')) {
+    alert('Please paste a valid Google Apps Script URL (starting with https://script.google.com…)');
+    return;
+  }
+  API = v;
+  localStorage.setItem(URL_KEY, API);
+  document.getElementById('setup-banner').style.display = 'none';
+  loadAll();
+}
+
+// ============================================================
+// DATA LOADING
+// ============================================================
+async function loadAll() {
+  if (!API) return;
+  showLoading('Loading from Google Sheets…');
+  try {
+    const res = await fetch(`${API}?action=getAll`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    S.data = json;
+
+    const depts = Object.keys(json.programs || {});
+    if (!S.dept || !depts.includes(S.dept)) S.dept = depts[0] || null;
+    if (S.dept) {
+      const progs = json.programs[S.dept] || [];
+      if (!S.prog || !progs.includes(S.prog)) S.prog = progs[0] || null;
+    }
+    renderAll();
+  } catch(e) {
+    document.getElementById('content').innerHTML = `
+      <div class="loading-state" style="color:var(--red)">
+        <div style="font-size:28px">⚠</div>
+        <strong>Could not load data</strong>
+        <p style="font-size:13px;color:var(--gray-500);max-width:400px;text-align:center">${e.message}<br><br>
+        Make sure your Apps Script is deployed as a Web App with access set to "Anyone".</p>
+        <button class="btn btn-green" onclick="loadAll()">Retry</button>
+      </div>`;
+  }
+}
+
+async function post(action, body) {
+  const res = await fetch(API, {
+    method: 'POST',
+    // Must be text/plain to avoid CORS preflight on Apps Script
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action, ...body })
+  });
+  const json = await res.json();
+  if (json.error) throw new Error(json.error);
+  return json;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderAll() {
+  renderDeptBar();
+  renderProgBar();
+  renderContent();
+}
+
+function renderDeptBar() {
+  const bar   = document.getElementById('dept-bar');
+  const depts = Object.keys(S.data?.programs || {});
+
+  let html = depts.map(d => `
+    <button class="dept-tab ${d===S.dept?'active':''}" onclick="pickDept(${q(d)})">
+      ${esc(d)}
+      <button class="remove-btn" onclick="event.stopPropagation();confirmRemoveDept(${q(d)})">✕</button>
+    </button>`).join('');
+
+  if (S.editing) html += `<button class="add-dept-btn" title="Add department" onclick="showAddDept()">+</button>`;
+  bar.innerHTML = html;
+}
+
+function renderProgBar() {
+  const bar   = document.getElementById('prog-bar');
+  const progs = (S.data?.programs?.[S.dept] || []);
+
+  let html = progs.map(p => `
+    <button class="prog-pill ${p===S.prog?'active':''}" onclick="pickProg(${q(p)})">
+      ${esc(p)}
+      <button class="remove-btn" onclick="event.stopPropagation();confirmRemoveProg(${q(p)})">✕</button>
+    </button>`).join('');
+
+  if (S.editing) html += `<button class="add-prog-pill" onclick="showAddProg()">+ Add Program</button>`;
+  bar.innerHTML = html;
+}
+
+function renderContent() {
+  const el = document.getElementById('content');
+
+  if (!S.dept || !S.prog) {
+    el.innerHTML = `<div class="empty-state"><h4>No program selected</h4><p>Add a department and program to get started.</p></div>`;
+    return;
+  }
+
+  const dept  = S.dept, prog = S.prog, mo = S.month;
+  const pLookup = makeLookup(S.data.planned, dept, prog, 'Planned Amount in USD');
+  const aLookup = makeLookup(S.data.actual,  dept, prog, 'Actual Amount in USD');
+  const alerts  = makeAlertMap(S.data.alerts, dept, prog);
+
+  // ---- Summary stat cards ----
+  const rev    = pLookup[k('P&L Summary','Revenue',mo)];
+  const aRev   = aLookup[k('P&L Summary','Revenue',mo)];
+  const aNet   = aLookup[k('P&L Summary','Net Margin',mo)];
+  const pMkt   = sumCat(pLookup, 'Marketing Spend by Channel', mo);
+  const aMkt   = sumCat(aLookup, 'Marketing Spend by Channel', mo);
+  const aGM    = aLookup[k('P&L Summary','Gross Margin',mo)];
+
+  let html = `<div class="stats-row">
+    ${sc('Planned Revenue',      fmt(rev,   '$'))}
+    ${sc('Actual Revenue',       fmt(aRev,  '$'), aRev!=null && rev!=null && aRev < rev ? 'red' : '')}
+    ${sc('Gross Margin (Actual)',fmt(aGM,   '$'), aGM!=null && aGM < 0 ? 'red' : '')}
+    ${sc('Net Margin (Actual)',  fmt(aNet,  '$'), aNet!=null && aNet < 0 ? 'red' : '')}
+    ${sc('Mkt Spend Planned',    fmt(pMkt,  '$'))}
+    ${sc('Mkt Spend Actual',     fmt(aMkt,  '$'), aMkt!=null && pMkt!=null && aMkt > pMkt*1.1 ? 'amber' : '')}
+  </div>`;
+
+  // ---- Category tables ----
+  Object.entries(CATS).forEach(([cat, metrics]) => {
+    html += buildTable(cat, metrics, pLookup, aLookup, alerts, dept, prog, mo);
+  });
+
+  el.innerHTML = html;
+}
+
+// Build one category table
+function buildTable(cat, metrics, pL, aL, alerts, dept, prog, mo) {
+  const rows = metrics.map(({m, type, unit}) => {
+    const pv  = pL[k(cat,m,mo)];
+    const av  = aL[k(cat,m,mo)];
+    const thr = alerts[m] || alerts['All'] || { w: 10, c: 20 };
+    const varAbs = (pv!=null && av!=null) ? av - pv : null;
+    const varPct = (pv!=null && pv!==0 && varAbs!=null) ? (varAbs/Math.abs(pv))*100 : null;
+    const flag   = calcFlag(type, av, pv, thr.w, thr.c);
+
+    // Variance colour flips based on metric type
+    const isCost = type === 'cost';
+    const vClass = varAbs == null ? 'td-num' :
+                   isCost ? (varAbs > 0 ? 'td-neg' : 'td-pos') :
+                             (varAbs > 0 ? 'td-pos' : 'td-neg');
+
+    return `<tr>
+      <td class="td-label">${esc(m)}</td>
+      <td class="td-num editable" onclick="startEdit(this,${q(dept)},${q(prog)},${q(cat)},${q(m)},${q(mo)},'planned',${q(unit)})">${fmt(pv,unit)}</td>
+      <td class="td-num editable" onclick="startEdit(this,${q(dept)},${q(prog)},${q(cat)},${q(m)},${q(mo)},'actual',${q(unit)})">${fmt(av,unit)}</td>
+      <td class="${vClass}">${varAbs!=null ? (varAbs>=0?'+':'')+fmt(varAbs,unit) : '—'}</td>
+      <td class="${vClass}">${varPct!=null ? (varPct>=0?'+':'')+varPct.toFixed(1)+'%' : '—'}</td>
+      <td>${chipHtml(flag)}</td>
+    </tr>`;
+  }).join('');
+
+  // Total row for marketing category
+  let totalRow = '';
+  if (cat === 'Marketing Spend by Channel') {
+    const tp   = sumCat(pL, cat, mo);
+    const ta   = sumCat(aL, cat, mo);
+    const tv   = tp!=null && ta!=null ? ta-tp : null;
+    const tvp  = tp && tv!=null ? (tv/tp)*100 : null;
+    const vCls = tv==null?'td-num': tv>0?'td-neg':'td-pos';
+    totalRow = `<tr class="row-total">
+      <td class="td-label">TOTAL</td>
+      <td class="td-num">${fmt(tp,'$')}</td>
+      <td class="td-num">${fmt(ta,'$')}</td>
+      <td class="${vCls}">${tv!=null ? (tv>=0?'+':'')+fmt(tv,'$') : '—'}</td>
+      <td class="${vCls}">${tvp!=null ? (tvp>=0?'+':'')+tvp.toFixed(1)+'%' : '—'}</td>
+      <td>${chipHtml(tv==null?'empty':tv>0?'warn':'ok')}</td>
+    </tr>`;
+  }
+
+  return `<div class="section">
+    <div class="section-head">
+      <span class="section-head-title">${esc(cat)}</span>
+      <span class="section-head-meta">${fmtMonth(mo)}</span>
+    </div>
+    <table class="data-table">
+      <thead><tr>
+        <th>Metric</th>
+        <th class="r">Planned (USD)</th>
+        <th class="r">Actual (USD)</th>
+        <th class="r">Variance ($)</th>
+        <th class="r">Variance (%)</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody>${rows}${totalRow}</tbody>
+    </table>
+  </div>`;
+}
+
+// ============================================================
+// INLINE EDIT
+// ============================================================
+function startEdit(cell, dept, prog, cat, metric, month, type, unit) {
+  if (cell.querySelector('input')) return;
+
+  const raw = cell.getAttribute('data-raw');
+  const inp = document.createElement('input');
+  inp.type  = 'number';
+  inp.value = raw != null ? raw : '';
+  inp.placeholder = '0';
+  inp.step  = unit === '%' ? '0.01' : '1';
+
+  cell.innerHTML = '';
+  cell.appendChild(inp);
+  inp.focus();
+  inp.select();
+
+  async function commit() {
+    const val = inp.value.trim();
+    if (val === '') { renderContent(); return; }
+    const amount = parseFloat(val);
+    if (isNaN(amount)) { renderContent(); return; }
+
+    cell.innerHTML = '<span style="color:var(--gray-500);font-size:12px">saving…</span>';
+
+    try {
+      const action = type === 'actual' ? 'saveActual' : 'savePlanned';
+      await post(action, { department: dept, program: prog, category: cat, metric, month, amount });
+
+      // Update local cache
+      const field = type === 'actual' ? 'Actual Amount in USD' : 'Planned Amount in USD';
+      const store = type === 'actual' ? S.data.actual : S.data.planned;
+      const ex    = store.find(r =>
+        r['Department']===dept && r['Program']===prog &&
+        r['Category']===cat   && r['Metric']===metric && r['Month']===month
+      );
+      if (ex) ex[field] = amount;
+      else {
+        const nr = { Department: dept, Program: prog, Category: cat, Metric: metric, Month: month };
+        nr[field] = amount;
+        store.push(nr);
+      }
+      showToast('✓ Saved');
+      renderContent();
+    } catch(e) {
+      cell.innerHTML = '<span style="color:var(--red)">Error</span>';
+      setTimeout(renderContent, 1500);
+    }
+  }
+
+  inp.addEventListener('blur',    commit);
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
+    if (e.key === 'Escape') { renderContent(); }
+  });
+}
+
+// ============================================================
+// MONTH NAV
+// ============================================================
+function shiftMonth(delta) {
+  const [y, m] = S.month.split('-').map(Number);
+  const d = new Date(y, m-1+delta, 1);
+  S.month = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  updateMonthLabel();
+  renderContent();
+}
+
+function updateMonthLabel() {
+  const [y, m] = S.month.split('-').map(Number);
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('month-label').textContent = `${MONTHS[m-1]} ${y}`;
+}
+
+// ============================================================
+// EDIT MODE
+// ============================================================
+function toggleEdit() {
+  S.editing = !S.editing;
+  document.body.classList.toggle('edit-mode', S.editing);
+  document.getElementById('edit-btn').textContent   = S.editing ? 'Done Editing' : 'Edit Structure';
+  document.getElementById('edit-badge').style.display = S.editing ? 'inline' : 'none';
+  renderDeptBar();
+  renderProgBar();
+}
+
+// ============================================================
+// DEPT / PROGRAM ACTIONS
+// ============================================================
+function pickDept(dept) {
+  S.dept = dept;
+  const progs = S.data?.programs?.[dept] || [];
+  S.prog = progs[0] || null;
+  renderDeptBar();
+  renderProgBar();
+  renderContent();
+}
+
+function pickProg(prog) {
+  S.prog = prog;
+  renderProgBar();
+  renderContent();
+}
+
+function showAddDept() {
+  openModal(`
+    <h3>Add Department</h3>
+    <label>Department name</label>
+    <input id="mi-dept" type="text" placeholder="e.g. Exec" autofocus>
+    <div class="modal-actions">
+      <button class="btn btn-neutral" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green"   onclick="submitAddDept()">Add</button>
+    </div>`);
+  setTimeout(() => document.getElementById('mi-dept')?.focus(), 60);
+}
+
+async function submitAddDept() {
+  const name = (document.getElementById('mi-dept').value || '').trim();
+  if (!name) return;
+  await post('addDepartment', { department: name });
+  if (!S.data.programs[name]) S.data.programs[name] = [];
+  S.dept = name; S.prog = null;
+  closeModal(); renderAll();
+}
+
+function showAddProg() {
+  openModal(`
+    <h3>Add Program to ${esc(S.dept)}</h3>
+    <label>Program name</label>
+    <input id="mi-prog" type="text" placeholder="e.g. MBA 2027" autofocus>
+    <div class="modal-actions">
+      <button class="btn btn-neutral" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green"   onclick="submitAddProg()">Add</button>
+    </div>`);
+  setTimeout(() => document.getElementById('mi-prog')?.focus(), 60);
+}
+
+async function submitAddProg() {
+  const name = (document.getElementById('mi-prog').value || '').trim();
+  if (!name) return;
+  await post('addProgram', { department: S.dept, program: name });
+  S.data.programs[S.dept].push(name);
+  S.prog = name;
+  closeModal(); renderAll();
+}
+
+function confirmRemoveProg(prog) {
+  openModal(`
+    <h3>Remove Program</h3>
+    <p>Remove <strong>${esc(prog)}</strong> from <strong>${esc(S.dept)}</strong>?
+    Existing data is preserved in the sheet — you can re-add it any time.</p>
+    <div class="modal-actions">
+      <button class="btn btn-neutral" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger"  onclick="submitRemoveProg(${q(prog)})">Remove</button>
+    </div>`);
+}
+
+async function submitRemoveProg(prog) {
+  await post('deleteProgram', { department: S.dept, program: prog });
+  S.data.programs[S.dept] = S.data.programs[S.dept].filter(p => p !== prog);
+  if (S.prog === prog) S.prog = S.data.programs[S.dept][0] || null;
+  closeModal(); renderAll();
+}
+
+function confirmRemoveDept(dept) {
+  openModal(`
+    <h3>Remove Department</h3>
+    <p>Hide the <strong>${esc(dept)}</strong> department? All programs will be hidden from the dashboard but data is preserved.</p>
+    <div class="modal-actions">
+      <button class="btn btn-neutral" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger"  onclick="submitRemoveDept(${q(dept)})">Remove</button>
+    </div>`);
+}
+
+async function submitRemoveDept(dept) {
+  const progs = S.data.programs[dept] || [];
+  for (const p of progs) await post('deleteProgram', { department: dept, program: p });
+  delete S.data.programs[dept];
+  if (S.dept === dept) {
+    S.dept = Object.keys(S.data.programs)[0] || null;
+    S.prog = S.dept ? (S.data.programs[S.dept][0] || null) : null;
+  }
+  closeModal(); renderAll();
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function makeLookup(rows, dept, prog, field) {
+  const map = {};
+  (rows || []).forEach(r => {
+    if (r['Department'] === dept && r['Program'] === prog) {
+      const key = `${r['Category']}||${r['Metric']}||${r['Month']}`;
+      const v   = parseFloat(r[field]);
+      map[key]  = isNaN(v) ? null : v;
+    }
+  });
+  return map;
+}
+
+function makeAlertMap(rows, dept, prog) {
+  const map = {};
+  (rows || []).forEach(r => {
+    const d = r['Department'], p = r['Program'], m = r['Metric'];
+    if ((d===dept||d==='All') && (p===prog||p==='All')) {
+      const w = parseFloat(r['Warning Percent Over Plan'])  || 10;
+      const c = parseFloat(r['Critical Percent Over Plan']) || 20;
+      map[String(m)] = { w, c };
+    }
+  });
+  return map;
+}
+
+function k(cat, metric, month) { return `${cat}||${metric}||${month}`; }
+
+function sumCat(lookup, cat, month) {
+  let total = 0, any = false;
+  Object.keys(lookup).forEach(key => {
+    if (key.startsWith(cat+'||') && key.endsWith('||'+month) && lookup[key] != null) {
+      total += lookup[key]; any = true;
+    }
+  });
+  return any ? total : null;
+}
+
+function calcFlag(type, actual, planned, wPct, cPct) {
+  if (actual == null || planned == null || planned === 0) return 'empty';
+  const diff = ((actual - planned) / Math.abs(planned)) * 100;
+  if (type === 'cost') {
+    if (diff > cPct) return 'critical';
+    if (diff > wPct) return 'warn';
+    return 'ok';
+  } else {
+    if (diff < -cPct) return 'critical';
+    if (diff < -wPct) return 'warn';
+    return 'ok';
+  }
+}
+
+function chipHtml(flag) {
+  if (flag==='ok')       return '<span class="chip chip-ok">✓ On Track</span>';
+  if (flag==='warn')     return '<span class="chip chip-warn">⚠ Warning</span>';
+  if (flag==='critical') return '<span class="chip chip-critical">✕ Over Limit</span>';
+  return '<span class="chip chip-empty">— No Data</span>';
+}
+
+function fmt(val, unit) {
+  if (val == null || isNaN(val)) return '—';
+  if (unit === '$') {
+    const neg = val < 0;
+    return (neg ? '-$' : '$') + Math.abs(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
+  if (unit === '%') return val.toFixed(1) + '%';
+  return val.toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function fmtMonth(mo) {
+  const [y,m] = mo.split('-').map(Number);
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]+' '+y;
+}
+
+function sc(label, value, cls='') {
+  return `<div class="stat-card ${cls?'stat-'+cls:''}">
+    <div class="stat-label">${label}</div>
+    <div class="stat-value">${value}</div>
+  </div>`;
+}
+
+function showLoading(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="loading-state"><div class="spinner"></div><span>${msg||'Loading…'}</span></div>`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function openModal(html) {
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('overlay').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('overlay').style.display = 'none';
+}
+
+// Safe HTML escape
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Quoted JS string for onclick attributes
+function q(s) {
+  return "'" + String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
+}
+</script>
+</body>
+</html>
