@@ -1,767 +1,1086 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TETR — Marketing Spend Tracker</title>
-  <style>
-    :root {
-      --green-900: #1B4332;
-      --green-700: #2D6A4F;
-      --green-100: #D1FAE5;
-      --green-50:  #ECFDF5;
-      --gold:      #C9A227;
-      --gold-100:  #FFFBEB;
-      --red:       #DC2626;
-      --red-100:   #FEE2E2;
-      --amber:     #D97706;
-      --amber-100: #FEF3C7;
-      --gray-900:  #111827;
-      --gray-700:  #374151;
-      --gray-600:  #4B5563;
-      --gray-500:  #6B7280;
-      --gray-400:  #9CA3AF;
-      --gray-300:  #D1D5DB;
-      --gray-200:  #E5E7EB;
-      --gray-100:  #F3F4F6;
-      --gray-50:   #F9FAFB;
-      --white:     #FFFFFF;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TETR AOP Tracker</title>
+<style>
+:root {
+  --green-900: #1B4332;
+  --green-800: #2D6A4F;
+  --green-200: #D8F3DC;
+  --gold:      #C9A227;
+  --gold-light:#F5E9C0;
+  --red:       #C0392B;
+  --red-light: #FADBD8;
+  --amber:     #D35400;
+  --amber-light:#FDEBD0;
+  --ok:        #1A6B3C;
+  --ok-light:  #EBF5EB;
+  --gray-50:   #F9FAFB;
+  --gray-100:  #F3F4F6;
+  --gray-200:  #E5E7EB;
+  --gray-300:  #D1D5DB;
+  --gray-400:  #9CA3AF;
+  --gray-500:  #6B7280;
+  --gray-600:  #4B5563;
+  --gray-700:  #374151;
+  --gray-900:  #111827;
+  --ph1:#EBF5FB; --ph2:#EAF4EA; --ph3:#FEF9E7; --ph4:#FDF2F8;
+  --panel-w: 360px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--gray-100);color:var(--gray-900);font-size:13px;}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── Topbar ── */
+#topbar{
+  background:var(--green-900);color:white;
+  padding:0 20px;height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:300;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.3px;}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.5);margin-top:1px;}
+.top-right{display:flex;align-items:center;gap:10px;}
+#lastUpdated{font-size:11px;color:rgba(255,255,255,.4);}
+.btn-refresh{
+  background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);
+  color:white;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;
+}
+.btn-refresh:hover{background:rgba(255,255,255,.22);}
+.btn-all-notes{
+  background:rgba(201,162,39,.2);border:1px solid rgba(201,162,39,.4);
+  color:var(--gold-light);padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;
+}
+.btn-all-notes:hover{background:rgba(201,162,39,.3);}
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--gray-50);
-      color: var(--gray-900);
-      font-size: 13px;
-    }
+/* ── Dept nav ── */
+#deptNav{
+  background:var(--green-900);padding:0 20px;display:flex;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+.dept-tab{
+  background:none;border:none;color:rgba(255,255,255,.6);
+  padding:10px 18px;cursor:pointer;font-size:13px;font-weight:500;
+  border-bottom:3px solid transparent;transition:all .15s;
+}
+.dept-tab:hover{color:white;}
+.dept-tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:600;}
 
-    /* ===== TOPBAR ===== */
-    .topbar {
-      position: sticky; top: 0; z-index: 200;
-      background: var(--green-900); color: var(--white);
-      padding: 0 24px; height: 54px;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-    .topbar-left { display: flex; align-items: center; gap: 12px; }
-    .logo {
-      background: var(--gold); color: var(--green-900);
-      font-weight: 900; font-size: 15px; letter-spacing: 2px;
-      padding: 4px 9px; border-radius: 4px;
-    }
-    .topbar-title { font-size: 15px; font-weight: 600; }
-    .topbar-sub   { font-size: 11px; opacity: 0.6; margin-top: 1px; }
-    .topbar-right { display: flex; align-items: center; gap: 8px; }
-    .btn {
-      padding: 6px 14px; border-radius: 6px; border: none;
-      cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s;
-    }
-    .btn-gold { background: var(--gold); color: var(--green-900); font-weight: 700; }
-    .btn-gold:hover { filter: brightness(1.08); }
+/* ── View nav ── */
+#viewNav{
+  background:white;padding:0 20px;display:flex;
+  border-bottom:1px solid var(--gray-200);
+}
+#viewNav.hidden{display:none;}
+.view-tab{
+  background:none;border:none;color:var(--gray-500);
+  padding:9px 16px;cursor:pointer;font-size:12px;font-weight:500;
+  border-bottom:2px solid transparent;transition:all .15s;
+}
+.view-tab:hover{color:var(--green-900);}
+.view-tab.active{color:var(--green-900);border-bottom-color:var(--green-900);font-weight:600;}
 
-    /* ===== DEPT TABS ===== */
-    .dept-bar {
-      display: flex; align-items: flex-end; gap: 2px;
-      padding: 0 24px; background: var(--white);
-      border-bottom: 2px solid var(--gray-200);
-    }
-    .dept-tab {
-      padding: 10px 20px; background: none; border: none;
-      cursor: pointer; font-size: 14px; font-weight: 500;
-      color: var(--gray-500); border-bottom: 3px solid transparent;
-      margin-bottom: -2px; border-radius: 5px 5px 0 0; transition: all 0.15s;
-    }
-    .dept-tab:hover  { color: var(--green-900); background: var(--gray-50); }
-    .dept-tab.active { color: var(--green-900); border-bottom-color: var(--green-900); font-weight: 700; }
+/* ── Summary cards ── */
+#summaryCards{
+  padding:12px 20px 0;display:flex;gap:10px;flex-wrap:wrap;
+  transition:margin-right .25s;
+}
+.scard{
+  background:white;border:1px solid var(--gray-200);border-radius:9px;
+  padding:12px 14px;min-width:130px;flex:1;max-width:190px;
+}
+.scard.warn{border-left:3px solid var(--amber);}
+.scard.crit{border-left:3px solid var(--red);}
+.scard.good{border-left:3px solid var(--green-800);}
+.scard.gold{border-left:3px solid var(--gold);}
+.sc-label{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.sc-value{font-size:18px;font-weight:700;margin-top:3px;}
+.sc-sub{font-size:10px;color:var(--gray-400);margin-top:1px;}
 
-    /* ===== PROGRAM DOTS ===== */
-    .prog-dots {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 24px; background: var(--white);
-      border-bottom: 1px solid var(--gray-100);
-    }
-    .prog-label   { font-size: 11px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.4px; margin-right: 4px; }
-    .prog-overall { padding: 3px 12px; background: var(--green-900); color: var(--white); border-radius: 12px; font-size: 12px; font-weight: 600; }
-    .prog-dot     { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-300); cursor: default; }
+/* ── Main content ── */
+#mainContent{padding:12px 20px 40px;transition:margin-right .25s;}
 
-    /* ===== MAIN ===== */
-    .main { padding: 18px 24px 60px; }
+/* When panel is open, content shifts */
+body.panel-open #summaryCards{margin-right:calc(var(--panel-w) + 10px);}
+body.panel-open #mainContent{margin-right:calc(var(--panel-w) + 10px);}
 
-    /* ===== SUMMARY CARDS ===== */
-    .summary-row { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
-    .sum-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 9px; padding: 12px 18px; flex: 1; min-width: 130px; }
-    .sum-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); margin-bottom: 3px; }
-    .sum-value { font-size: 19px; font-weight: 700; color: var(--green-900); }
-    .sum-red   .sum-value { color: var(--red); }
-    .sum-amber .sum-value { color: var(--amber); }
+/* ── Spend table ── */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--gray-200);background:white;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.spend-table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:11.5px;}
 
-    /* ===== TABLE WRAPPER ===== */
-    .table-wrap {
-      background: var(--white); border: 1px solid var(--gray-200);
-      border-radius: 10px; overflow-x: auto;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
+/* sticky channel col */
+.spend-table .sticky-col{position:sticky;left:0;z-index:5;}
+.spend-table thead .sticky-col{z-index:15;background:var(--green-900);}
+.spend-table tbody .sticky-col{background:white;border-right:2px solid var(--gray-200);}
 
-    /* ===== YEAR TABLE ===== */
-    .year-table { border-collapse: collapse; table-layout: fixed; }
-    .year-table .col-label { width: 185px; min-width: 185px; }
-    .year-table .col-sub   { width: 72px;  min-width: 68px; }
+.spend-table thead th{
+  background:var(--green-900);color:white;
+  padding:7px 7px;text-align:center;
+  font-weight:600;font-size:10.5px;
+  border-right:1px solid rgba(255,255,255,.12);
+}
+.spend-table thead .ch-label{
+  text-align:left;min-width:172px;
+  border-right:2px solid rgba(255,255,255,.25);
+}
+.spend-table thead .annual-hdr{background:#112D20;border-right:2px solid rgba(255,255,255,.2);}
+.spend-table thead .ph1-hdr{background:#1A6B9A;}
+.spend-table thead .ph2-hdr{background:#196e40;}
+.spend-table thead .ph3-hdr{background:#8a6a10;}
+.spend-table thead .ph4-hdr{background:#6a305a;}
+.spend-table thead tr.mrow th{background:var(--gray-700);font-size:10px;padding:5px 5px;font-weight:500;}
+.spend-table thead tr.mrow .annual-sub{background:#1e3d2e;}
+.spend-table thead tr.mrow .ph1-sub{background:#175880;}
+.spend-table thead tr.mrow .ph2-sub{background:#175c36;}
+.spend-table thead tr.mrow .ph3-sub{background:#725610;}
+.spend-table thead tr.mrow .ph4-sub{background:#56285a;}
 
-    /* ---- Header: Phase row ---- */
-    .year-table thead tr.phase-row th {
-      padding: 7px 6px; text-align: center;
-      font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.4px;
-      border-bottom: 1px solid var(--gray-300);
-      white-space: nowrap;
-    }
-    .th-annual-phase {
-      background: var(--gray-800, #1F2937); color: var(--white);
-      border-left: 2px solid var(--gray-600) !important;
-      border-right: 2px solid var(--gray-600) !important;
-    }
-    .ph-1 { background: #DBEAFE; color: #1E40AF; border-left: 2px solid #BFDBFE !important; }
-    .ph-2 { background: #FEF9C3; color: #854D0E; border-left: 2px solid #FDE68A !important; }
-    .ph-3 { background: #FCE7F3; color: #9D174D; border-left: 2px solid #FBCFE8 !important; }
-    .ph-4 { background: #DCFCE7; color: #166534; border-left: 2px solid #BBF7D0 !important; }
+.spend-table tbody td{
+  padding:5px 7px;border-bottom:1px solid var(--gray-100);
+  border-right:1px solid var(--gray-100);text-align:right;color:var(--gray-700);
+}
+.spend-table tbody td.ch-name{
+  text-align:left;font-weight:500;color:var(--gray-900);
+  padding-left:10px;
+}
+.spend-table tbody td.annual-col{
+  background:#f0f4f0!important;font-weight:600;
+  border-right:2px solid var(--gray-200);
+}
+/* Phase coloring */
+.spend-table tbody td.ph1{background:var(--ph1);}
+.spend-table tbody td.ph2{background:var(--ph2);}
+.spend-table tbody td.ph3{background:var(--ph3);}
+.spend-table tbody td.ph4{background:var(--ph4);}
 
-    /* ---- Header: Month row ---- */
-    .year-table thead tr.month-row th {
-      padding: 6px 4px; text-align: center;
-      font-size: 12px; font-weight: 600; color: var(--gray-700);
-      background: var(--gray-50); border-bottom: 1px solid var(--gray-300);
-    }
-    .th-annual-month {
-      background: var(--gray-200) !important; color: var(--gray-700) !important;
-      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
-      border-left: 2px solid var(--gray-400) !important;
-      border-right: 2px solid var(--gray-400) !important;
-    }
-    .mh-ph1 { background: #EFF6FF !important; }
-    .mh-ph2 { background: #FEFCE8 !important; }
-    .mh-ph3 { background: #FDF2F8 !important; }
-    .mh-ph4 { background: #F0FDF4 !important; }
+/* Clickable cells for note panel */
+.spend-table tbody td.clickable{cursor:pointer;}
+.spend-table tbody td.clickable:hover{filter:brightness(.94);}
 
-    /* ---- Header: Sub-column row ---- */
-    .year-table thead tr.subcol-row th {
-      padding: 5px 4px; text-align: center;
-      font-size: 10px; font-weight: 600; color: var(--gray-500);
-      text-transform: uppercase; letter-spacing: 0.3px;
-      background: var(--white); border-bottom: 2px solid var(--gray-300);
-    }
-    .th-channel-sub {
-      text-align: left; padding-left: 14px;
-      font-size: 11px; color: var(--gray-600);
-      background: var(--gray-100) !important;
-    }
-    .sub-plan { color: var(--gray-500); }
-    .sub-act  { color: var(--green-700); }
-    .sub-var  { color: var(--gray-600); }
-    .sub-ann  { background: var(--gray-100) !important; }
-    .sub-ph1  { background: #F8FAFF !important; }
-    .sub-ph2  { background: #FEFEF5 !important; }
-    .sub-ph3  { background: #FEF9FC !important; }
-    .sub-ph4  { background: #F7FDF9 !important; }
+/* Flag states */
+.spend-table tbody td.flag-warn{background:var(--amber-light)!important;}
+.spend-table tbody td.flag-crit{background:var(--red-light)!important;}
 
-    /* ---- Data cells ---- */
-    .year-table tbody td {
-      border-bottom: 1px solid var(--gray-100);
-      vertical-align: middle;
-    }
-    .year-table tbody tr:last-child td { border-bottom: none; }
-    .year-table tbody tr:hover td { background: var(--gray-50) !important; }
+/* Variation */
+.var-inner{display:flex;flex-direction:column;align-items:flex-end;line-height:1.3;}
+.var-abs{font-size:10.5px;font-weight:600;}
+.var-pct{font-size:9.5px;}
+.over{color:var(--red);}
+.under{color:var(--ok);}
+.zero{color:var(--gray-400);}
 
-    .td-label {
-      padding: 9px 14px; font-weight: 500;
-      color: var(--gray-700); font-size: 13px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      position: sticky; left: 0; background: var(--white);
-      border-right: 2px solid var(--gray-200); z-index: 1;
-    }
-    .year-table tbody tr:hover .td-label { background: var(--gray-50); }
+/* Note indicator */
+.note-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--gray-400);margin-left:4px;vertical-align:middle;
+  cursor:pointer;flex-shrink:0;
+}
+.note-dot.has-note{background:var(--green-800);}
+.note-dot.flag-note{background:var(--amber);}
+.note-dot.crit-note{background:var(--red);}
 
-    .td-sub {
-      padding: 9px 6px; text-align: right;
-      font-size: 12px; font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-    }
+/* Section separator */
+.section-sep td{
+  background:var(--gray-50)!important;
+  font-size:9.5px;font-weight:700;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--gray-400);
+  text-align:left!important;padding:4px 10px!important;
+  border-top:1px solid var(--gray-200);
+}
+.spend-table .total-row td{
+  background:var(--green-200)!important;
+  font-weight:700;border-top:2px solid var(--green-800);
+}
 
-    /* Plan column */
-    .td-plan { color: var(--gray-600); cursor: pointer; }
-    .td-plan:hover { background: var(--green-50) !important; }
+/* ── Note side panel ── */
+#notePanel{
+  position:fixed;right:calc(-1 * var(--panel-w) - 20px);
+  top:52px;bottom:0;
+  width:var(--panel-w);
+  background:white;
+  border-left:1px solid var(--gray-200);
+  box-shadow:-6px 0 24px rgba(0,0,0,.1);
+  transition:right .25s ease;
+  z-index:200;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+#notePanel.open{right:0;}
 
-    /* Actual column */
-    .td-act { cursor: pointer; }
-    .td-act:hover { background: var(--green-50) !important; }
-    .td-act.ok       { color: #166534; background: #F0FDF4; }
-    .td-act.warn     { color: #92400E; background: var(--amber-100); }
-    .td-act.critical { color: #991B1B; background: var(--red-100); }
-    .td-act.empty    { color: var(--gray-400); }
+.panel-header{
+  background:var(--green-900);color:white;
+  padding:14px 16px 12px;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  flex-shrink:0;
+}
+.panel-header h3{font-size:13px;font-weight:600;margin-bottom:2px;}
+.panel-header .ph-sub{font-size:11px;color:rgba(255,255,255,.55);}
+.panel-close{
+  background:none;border:none;color:rgba(255,255,255,.7);
+  font-size:20px;cursor:pointer;line-height:1;margin-left:8px;flex-shrink:0;
+}
+.panel-close:hover{color:white;}
 
-    /* Variation column */
-    .td-var {
-      font-weight: 600;
-      display: flex; flex-direction: column;
-      align-items: flex-end; justify-content: center;
-      gap: 1px; line-height: 1.3;
-    }
-    .td-var.over  { color: var(--red); }
-    .td-var.under { color: #16A34A; }
-    .td-var.zero  { color: var(--gray-500); }
-    .td-var.empty { color: var(--gray-400); font-weight: 400; }
+.panel-body{flex:1;overflow-y:auto;padding:16px;}
 
-    /* Annual total group border */
-    .ann-group { border-left: 2px solid var(--gray-400) !important; }
-    .ann-group-right { border-right: 2px solid var(--gray-400) !important; }
+.panel-section{margin-bottom:16px;}
+.panel-section .ps-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--gray-500);margin-bottom:6px;
+}
 
-    /* Phase start border */
-    .ph1-start { border-left: 2px solid #BFDBFE !important; }
-    .ph2-start { border-left: 2px solid #FDE68A !important; }
-    .ph3-start { border-left: 2px solid #FBCFE8 !important; }
-    .ph4-start { border-left: 2px solid #BBF7D0 !important; }
+.var-row{
+  display:flex;gap:8px;margin-bottom:10px;
+}
+.var-block{
+  flex:1;background:var(--gray-50);border:1px solid var(--gray-200);
+  border-radius:7px;padding:8px 10px;
+}
+.var-block .vb-label{font-size:9px;text-transform:uppercase;color:var(--gray-400);font-weight:600;letter-spacing:.4px;}
+.var-block .vb-val{font-size:16px;font-weight:700;margin-top:2px;color:var(--gray-900);}
 
-    /* Inline input */
-    .td-sub input {
-      width: 64px; padding: 3px 5px;
-      border: 2px solid var(--green-900); border-radius: 4px;
-      font-size: 12px; text-align: right; font-family: inherit;
-      outline: none; background: var(--white);
-    }
+.variance-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;
+  margin-bottom:12px;
+}
+.variance-badge.over{background:var(--red-light);color:var(--red);}
+.variance-badge.under{background:var(--ok-light);color:var(--ok);}
+.variance-badge.ok{background:var(--gray-100);color:var(--gray-500);}
 
-    /* ===== TOTAL ROW ===== */
-    .row-total .td-label {
-      font-weight: 700; color: var(--green-900);
-      background: var(--gold-100, #FFFBEB) !important;
-    }
-    .row-total td {
-      background: var(--gold-100, #FFFBEB) !important;
-      border-top: 2px solid var(--gold) !important;
-    }
-    .row-total .td-plan { font-weight: 700; color: var(--gray-700); }
-    .row-total .td-act  { font-weight: 700; }
-    .row-total .td-var  { font-weight: 700; }
+.note-box{
+  background:var(--gray-50);border:1px solid var(--gray-200);
+  border-radius:8px;padding:12px 14px;
+  font-size:12px;line-height:1.6;color:var(--gray-700);
+}
+.note-box.empty{color:var(--gray-400);font-style:italic;}
+.note-date{font-size:10px;color:var(--gray-400);margin-top:6px;}
 
-    /* ===== LOADING ===== */
-    .loading {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 80px 20px; color: var(--gray-500); gap: 14px;
-    }
-    .spinner {
-      width: 32px; height: 32px;
-      border: 3px solid var(--gray-200); border-top-color: var(--green-900);
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+.panel-hint{
+  margin-top:12px;padding:10px 12px;
+  background:var(--gold-light);border-radius:7px;
+  font-size:11px;color:#6B4F10;line-height:1.5;
+}
+.panel-hint strong{color:#4a360a;}
 
-    /* ===== TOAST ===== */
-    .toast {
-      position: fixed; top: 64px; right: 20px;
-      background: var(--green-900); color: var(--white);
-      padding: 9px 16px; border-radius: 7px;
-      font-size: 12px; font-weight: 500; z-index: 999;
-      opacity: 0; transform: translateY(-4px);
-      transition: opacity 0.2s, transform 0.2s; pointer-events: none;
-    }
-    .toast.show { opacity: 1; transform: translateY(0); }
-  </style>
+/* All-notes list */
+.note-list-item{
+  padding:12px 14px;border-bottom:1px solid var(--gray-100);cursor:pointer;
+}
+.note-list-item:hover{background:var(--gray-50);}
+.nli-head{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.nli-channel{font-weight:600;font-size:12px;flex:1;}
+.nli-month{font-size:11px;color:var(--gray-400);}
+.nli-flag{
+  display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;
+  font-weight:700;
+}
+.nli-flag.warn{background:var(--amber-light);color:var(--amber);}
+.nli-flag.crit{background:var(--red-light);color:var(--red);}
+.nli-text{font-size:11px;color:var(--gray-600);line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* ── Funnel ── */
+.funnel-controls{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.funnel-controls label{font-size:11px;color:var(--gray-600);font-weight:500;}
+.month-btn{
+  padding:4px 9px;border:1px solid var(--gray-300);border-radius:5px;
+  background:white;cursor:pointer;font-size:11px;color:var(--gray-700);
+}
+.month-btn:hover{border-color:var(--green-900);}
+.month-btn.active{background:var(--green-900);color:white;border-color:var(--green-900);}
+.funnel-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--gray-200);background:white;}
+.funnel-table{width:100%;border-collapse:collapse;font-size:11.5px;white-space:nowrap;}
+.funnel-table thead th{
+  background:var(--green-900);color:white;padding:8px 10px;
+  font-size:10.5px;font-weight:600;border-right:1px solid rgba(255,255,255,.15);text-align:center;
+}
+.funnel-table thead th:first-child{text-align:left;min-width:160px;}
+.funnel-table tbody td{padding:7px 10px;border-bottom:1px solid var(--gray-100);text-align:center;color:var(--gray-700);}
+.funnel-table tbody td:first-child{text-align:left;font-weight:500;}
+.conv-rate{font-size:9.5px;color:var(--gray-400);display:block;}
+.funnel-table .total-row td{background:var(--green-200);font-weight:700;border-top:2px solid var(--green-800);}
+
+/* ── Forecast ── */
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.metric-card{background:white;border:1px solid var(--gray-200);border-radius:9px;padding:14px 15px;}
+.mc-label{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.mc-val{font-size:19px;font-weight:700;margin-top:3px;}
+.mc-plan{font-size:10px;color:var(--gray-400);margin-top:2px;}
+
+.fc-table-wrap{background:white;border:1px solid var(--gray-200);border-radius:9px;overflow:hidden;}
+.fc-table{width:100%;border-collapse:collapse;font-size:12px;}
+.fc-table thead th{background:var(--green-900);color:white;padding:9px 13px;text-align:left;font-size:11px;font-weight:600;}
+.fc-table tbody td{padding:8px 13px;border-bottom:1px solid var(--gray-100);}
+.fc-table .is-actual td{background:var(--ok-light);}
+.fc-table .is-forecast td{background:#FFF9EB;}
+.badge{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700;margin-left:4px;vertical-align:middle;}
+.badge-actual{background:var(--green-200);color:var(--green-800);}
+.badge-forecast{background:var(--gold-light);color:#7a6018;}
+.fc-table tfoot td{font-weight:700;background:var(--gray-50);border-top:2px solid var(--gray-300);padding:8px 13px;}
+
+/* ── Hint / info box ── */
+.info-box{
+  background:white;border:1px solid var(--gray-200);border-radius:9px;
+  padding:14px 16px;margin-top:14px;font-size:11.5px;color:var(--gray-600);line-height:1.6;
+}
+.info-box strong{color:var(--gray-900);}
+
+/* ── Toast & loader ── */
+#toast{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--gray-900);color:white;padding:9px 15px;
+  border-radius:8px;font-size:13px;opacity:0;pointer-events:none;
+  transition:opacity .25s;z-index:9999;
+}
+#toast.show{opacity:1;}
+#toast.err{background:var(--red);}
+#loadingBar{
+  position:fixed;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--green-800));
+  transform:scaleX(0);transform-origin:left;transition:transform .35s;z-index:9999;
+}
+#loadingBar.active{transform:scaleX(1);}
+</style>
 </head>
 <body>
 
-<div class="toast" id="toast">✓ Saved</div>
+<div id="loadingBar"></div>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="logo">TETR</div>
-    <div>
-      <div class="topbar-title">Marketing Spend Tracker</div>
-      <div class="topbar-sub">Sep 2026 – Sep 2027 · All values in USD · Click any Planned or Actual cell to edit</div>
+<header id="topbar">
+  <div>
+    <div class="brand-name">TETR College of Business</div>
+    <div class="brand-sub">AOP Marketing Tracker · FY Sep 2026 – Sep 2027 · Read-only view</div>
+  </div>
+  <div class="top-right">
+    <span id="lastUpdated"></span>
+    <button class="btn-all-notes" onclick="showAllNotes()">💬 All Notes</button>
+    <button class="btn-refresh" onclick="loadAndRender()">↻ Refresh</button>
+  </div>
+</header>
+
+<nav id="deptNav"></nav>
+
+<nav id="viewNav">
+  <button class="view-tab active" data-view="spend"    onclick="setView('spend')">Spend Tracker</button>
+  <button class="view-tab"        data-view="funnel"   onclick="setView('funnel')">Enrollment Funnel</button>
+  <button class="view-tab"        data-view="forecast" onclick="setView('forecast')">Forecast</button>
+</nav>
+
+<div id="summaryCards"></div>
+<div id="mainContent"></div>
+
+<!-- Slide-in note panel -->
+<div id="notePanel">
+  <div class="panel-header">
+    <div id="panelHeaderContent">
+      <div class="ph-sub" id="panelSub">—</div>
+      <h3 id="panelTitle">Variance Note</h3>
     </div>
+    <button class="panel-close" onclick="closePanel()">×</button>
   </div>
-  <div class="topbar-right">
-    <button class="btn btn-gold" onclick="loadAll()">↻ Refresh</button>
+  <div class="panel-body" id="panelBody">
+    <p style="color:var(--gray-400);font-size:12px;">Click a highlighted cell to view variance details and notes.</p>
   </div>
 </div>
 
-<!-- DEPT TABS -->
-<div class="dept-bar">
-  <button class="dept-tab active" onclick="pickDept('PG')"   id="tab-PG">PG</button>
-  <button class="dept-tab"        onclick="pickDept('UG')"   id="tab-UG">UG</button>
-  <button class="dept-tab"        onclick="pickDept('Exec')" id="tab-Exec">Exec</button>
-</div>
-
-<!-- PROGRAM DOTS -->
-<div class="prog-dots" id="prog-dots">
-  <span class="prog-label">Programs</span>
-  <span class="prog-overall">Overall</span>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-  <div class="summary-row" id="summary-row"></div>
-  <div class="table-wrap">
-    <div id="table-area">
-      <div class="loading"><div class="spinner"></div><span>Loading from Google Sheets…</span></div>
-    </div>
-  </div>
-</div>
+<div id="toast"></div>
 
 <script>
-// ============================================================
+// ──────────────────────────────────────────────────────────────
 // CONSTANTS
-// ============================================================
-
-const API = 'https://script.google.com/macros/s/AKfycby-MPOQGbvbb11BmJiiFbqfGK7ID22QIOmOYb-qJnWR8z5__145JFqaDzErlWIF7VT5/exec';
-
-const DEPT_PROGRAMS = {
-  PG:   ['MiM 2027', 'GPEL', 'MSEI', 'MBA'],
-  UG:   ['Bachelor of Business', 'Bachelor of Finance'],
-  Exec: ['Executive MBA', 'Executive Leadership', 'Certificate Programs'],
-};
+// ──────────────────────────────────────────────────────────────
+const API_URL = 'https://script.google.com/macros/s/AKfycby-MPOQGbvbb11BmJiiFbqfGK7ID22QIOmOYb-qJnWR8z5__145JFqaDzErlWIF7VT5/exec';
 
 const MONTHS = [
-  { key: '2026-09', label: "Sep '26" },
-  { key: '2026-10', label: "Oct '26" },
-  { key: '2026-11', label: "Nov '26" },
-  { key: '2026-12', label: "Dec '26" },
-  { key: '2027-01', label: "Jan '27" },
-  { key: '2027-02', label: "Feb '27" },
-  { key: '2027-03', label: "Mar '27" },
-  { key: '2027-04', label: "Apr '27" },
-  { key: '2027-05', label: "May '27" },
-  { key: '2027-06', label: "Jun '27" },
-  { key: '2027-07', label: "Jul '27" },
-  { key: '2027-08', label: "Aug '27" },
-  { key: '2027-09', label: "Sep '27" },
+  {key:'2026-09',label:"Sep '26"},{key:'2026-10',label:"Oct '26"},
+  {key:'2026-11',label:"Nov '26"},{key:'2026-12',label:"Dec '26"},
+  {key:'2027-01',label:"Jan '27"},{key:'2027-02',label:"Feb '27"},
+  {key:'2027-03',label:"Mar '27"},{key:'2027-04',label:"Apr '27"},
+  {key:'2027-05',label:"May '27"},{key:'2027-06',label:"Jun '27"},
+  {key:'2027-07',label:"Jul '27"},{key:'2027-08',label:"Aug '27"},
+  {key:'2027-09',label:"Sep '27"},
 ];
 
-// Phase definitions — each month maps to a phase index (0–3)
 const PHASES = [
-  { label: 'Pre Application Phase',                keys: ['2026-09','2026-10'],                                         cls: 'ph-1', mhCls: 'mh-ph1', subCls: 'sub-ph1', startBorder: 'ph1-start' },
-  { label: 'Peak Application Phase',               keys: ['2026-11','2026-12','2027-01','2027-02','2027-03'],           cls: 'ph-2', mhCls: 'mh-ph2', subCls: 'sub-ph2', startBorder: 'ph2-start' },
-  { label: 'Rejections by Top Universities Phase', keys: ['2027-04','2027-05','2027-06','2027-07'],                     cls: 'ph-3', mhCls: 'mh-ph3', subCls: 'sub-ph3', startBorder: 'ph3-start' },
-  { label: 'Post Cycle',                           keys: ['2027-08','2027-09'],                                         cls: 'ph-4', mhCls: 'mh-ph4', subCls: 'sub-ph4', startBorder: 'ph4-start' },
+  {label:'Pre Application',  cls:'ph1', keys:['2026-09','2026-10']},
+  {label:'Peak Application', cls:'ph2', keys:['2026-11','2026-12','2027-01','2027-02','2027-03']},
+  {label:'Rejections Phase', cls:'ph3', keys:['2027-04','2027-05','2027-06','2027-07']},
+  {label:'Post Cycle',       cls:'ph4', keys:['2027-08','2027-09']},
 ];
 
-// Quick lookup: month key → phase object
-const MPHASE = {};
-PHASES.forEach(ph => ph.keys.forEach((k, i) => { MPHASE[k] = { ph, isFirst: i === 0 }; }));
+const PHASE_MAP = {};
+PHASES.forEach(ph => ph.keys.forEach(k => { PHASE_MAP[k] = ph.cls; }));
 
-const CHANNELS = [
-  'Performance Marketing',
-  'Influencer Marketing',
-  'PR',
-  'Affiliate Marketing',
-  'Online Events',
-  'Offline Events',
-  'WATI',
-  'Buddy',
-  'Interviewer Cost',
-  'Conversion Incentive',
-  'Printing and Tools',
-  'Brand',
-  'Agent and Counsellor Networks',
+const ALL_CHANNELS = [
+  'Performance Marketing','Influencer Marketing','PR','Affiliate Marketing',
+  'Online Events','Offline Events','WATI','Buddy','Interviewer Cost',
+  'Conversion Incentive','Printing and Tools','Brand','Agent and Counsellor Networks',
 ];
 
-const CAT  = 'Marketing Spend by Channel';
-const PROG = 'Overall';
+const CENTRAL_CHANNELS = ['Performance Marketing','Influencer Marketing','Agent and Counsellor Networks'];
 
-// ============================================================
+const FUNNEL_STAGES = [
+  'Total Leads','App Starts','App Submits','Trial Completed','Trial Shortlisted',
+  'Interview Completed','Offer Sent','Gross Admits','Retained Admits',
+];
+
+const FUNNEL_CHANNELS = [
+  'Performance Marketing','Influencer Marketing','Agent and Counsellor Networks',
+  'Organic','Other / Referral',
+];
+
+// ──────────────────────────────────────────────────────────────
 // STATE
-// ============================================================
-let S = { data: null, dept: 'PG' };
+// ──────────────────────────────────────────────────────────────
+const S = {
+  data:  null,
+  depts: [],           // ordered dept list from sheet
+  dept:  null,
+  view:  'spend',
+  funnelMonth: 'YTD',
+};
 
-// ============================================================
-// INIT
-// ============================================================
-window.addEventListener('DOMContentLoaded', () => {
-  loadAll();
-  renderProgDots();
-});
-
-// ============================================================
-// DATA
-// ============================================================
-async function loadAll() {
-  showLoading();
-  try {
-    const res  = await fetch(`${API}?action=getAll`);
-    const json = await res.json();
-    if (json.error) throw new Error(json.error);
-    S.data = json;
-    renderAll();
-  } catch(e) {
-    document.getElementById('table-area').innerHTML = `
-      <div class="loading" style="color:var(--red)">
-        <div>⚠ ${e.message}</div>
-        <button class="btn btn-gold" style="margin-top:8px" onclick="loadAll()">Retry</button>
-      </div>`;
-    document.getElementById('summary-row').innerHTML = '';
-  }
+// ──────────────────────────────────────────────────────────────
+// DATA HELPERS
+// ──────────────────────────────────────────────────────────────
+function getSpend(dept, channel, month, type) {
+  if (!S.data) return null;
+  const store = type === 'planned' ? S.data.planned : S.data.actual;
+  const fld   = type === 'planned' ? 'Planned Amount in USD' : 'Actual Amount in USD';
+  const row   = store.find(r => s(r['Department']) === dept && s(r['Channel']) === channel && s(r['Month']) === month);
+  return row ? (parseFloat(row[fld]) || 0) : null;
 }
 
-async function post(action, body) {
-  const res  = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action, ...body })
-  });
-  const json = await res.json();
-  if (json.error) throw new Error(json.error);
-  return json;
+function getAnnualSpend(dept, channel, type) {
+  return MONTHS.reduce((sum, m) => sum + (getSpend(dept, channel, m.key, type) || 0), 0);
 }
 
-// ============================================================
-// LOOKUPS
-// ============================================================
-function makeLookup(rows, dept, field) {
-  const map = {};
-  (rows || []).forEach(r => {
-    if (r['Department'] === dept && r['Program'] === PROG && r['Category'] === CAT) {
-      const v = parseFloat(r[field]);
-      map[r['Metric'] + '||' + r['Month']] = isNaN(v) ? null : v;
-    }
-  });
-  return map;
+function getMonthTotal(dept, month, type) {
+  const chs = isCentralDept(dept) ? CENTRAL_CHANNELS : ALL_CHANNELS;
+  return chs.reduce((sum, ch) => sum + (getSpend(dept, ch, month, type) || 0), 0);
 }
 
-function getv(lk, channel, monthKey) {
-  return lk[channel + '||' + monthKey] ?? null;
+function getAnnualTotal(dept, type) {
+  return MONTHS.reduce((sum, m) => sum + getMonthTotal(dept, m.key, type), 0);
 }
 
-function makeAlertMap(rows, dept) {
-  const map = {};
-  (rows || []).forEach(r => {
-    if (r['Department'] === dept || r['Department'] === 'All') {
-      map[String(r['Metric'])] = {
-        w: parseFloat(r['Warning Percent Over Plan'])  || 10,
-        c: parseFloat(r['Critical Percent Over Plan']) || 20,
-      };
-    }
-  });
-  return map;
+function isCentralDept(dept) {
+  return dept.toLowerCase().includes('central');
 }
 
-// ============================================================
-// RENDER
-// ============================================================
-function renderAll() {
-  renderProgDots();
-  renderSummary();
-  renderTable();
-}
-
-function renderProgDots() {
-  const el    = document.getElementById('prog-dots');
-  const progs = DEPT_PROGRAMS[S.dept] || [];
-  let html = `<span class="prog-label">Programs</span><span class="prog-overall">Overall</span>`;
-  progs.forEach(p => `<div class="prog-dot" title="${esc(p)}"></div>`);
-  progs.forEach(p => { html += `<div class="prog-dot" title="${esc(p)}"></div>`; });
-  el.innerHTML = html;
-}
-
-// ---- Summary cards ----
-function renderSummary() {
-  const pL = makeLookup(S.data.planned, S.dept, 'Planned Amount in USD');
-  const aL = makeLookup(S.data.actual,  S.dept, 'Actual Amount in USD');
-  let tp = 0, ta = 0, hasAny = false, over = 0, months = new Set();
-  CHANNELS.forEach(ch => {
-    MONTHS.forEach(m => {
-      const pv = getv(pL, ch, m.key), av = getv(aL, ch, m.key);
-      if (pv) tp += pv;
-      if (av != null) { ta += av; hasAny = true; months.add(m.key); if (pv && av > pv * 1.1) over++; }
-    });
-  });
-  const remain = hasAny ? tp - ta : null;
-  const pct    = hasAny && tp ? (ta / tp * 100) : null;
-  document.getElementById('summary-row').innerHTML =
-    sc('Annual Planned',   fmtK(tp)) +
-    sc('Spent to Date',    hasAny ? fmtK(ta) : '—',    hasAny && ta > tp ? 'red' : '') +
-    sc('Remaining',        remain != null ? fmtK(remain) : '—', remain != null && remain < 0 ? 'red' : '') +
-    sc('Budget Used',      pct != null ? pct.toFixed(1)+'%' : '—', pct > 100 ? 'red' : pct > 85 ? 'amber' : '') +
-    sc('Months With Data', months.size + ' / 13') +
-    sc('Channels Over Budget', over > 0 ? String(over) : '0', over > 0 ? 'red' : '');
-}
-function sc(l, v, c='') {
-  return `<div class="sum-card ${c?'sum-'+c:''}"><div class="sum-label">${l}</div><div class="sum-value">${v}</div></div>`;
-}
-
-// ============================================================
-// YEAR TABLE
-// ============================================================
-function renderTable() {
-  const pL     = makeLookup(S.data.planned, S.dept, 'Planned Amount in USD');
-  const aL     = makeLookup(S.data.actual,  S.dept, 'Actual Amount in USD');
-  const alerts = makeAlertMap(S.data.alerts, S.dept);
-
-  // Total columns: 1 (label) + 3 (annual) + 13*3 (months) = 43
-  // colgroup
-  let cols = `<col class="col-label">`;
-  cols += `<col class="col-sub"><col class="col-sub"><col class="col-sub">`; // annual
-  MONTHS.forEach(() => { cols += `<col class="col-sub"><col class="col-sub"><col class="col-sub">`; });
-
-  // ---- Phase header row ----
-  let phRow = `<tr class="phase-row">
-    <th style="background:var(--green-900);"></th>
-    <th colspan="3" class="th-annual-phase">Annual Total</th>`;
-  PHASES.forEach(ph => {
-    phRow += `<th colspan="${ph.keys.length * 3}" class="${ph.cls}">${ph.label}</th>`;
-  });
-  phRow += `</tr>`;
-
-  // ---- Month header row ----
-  let moRow = `<tr class="month-row">
-    <th style="background:var(--gray-100);border-bottom:1px solid var(--gray-300)"></th>
-    <th colspan="3" class="th-annual-month">Annual Total</th>`;
-  MONTHS.forEach(m => {
-    const mp = MPHASE[m.key];
-    const cls = mp ? (mp.isFirst ? mp.ph.startBorder + ' ' + mp.ph.mhCls : mp.ph.mhCls) : '';
-    moRow += `<th colspan="3" class="${cls}">${m.label}</th>`;
-  });
-  moRow += `</tr>`;
-
-  // ---- Sub-column header row ----
-  let subRow = `<tr class="subcol-row">
-    <th class="th-channel-sub">Channel</th>
-    <th class="sub-plan sub-ann">Plan</th>
-    <th class="sub-act  sub-ann">Actual</th>
-    <th class="sub-var  sub-ann">Variation</th>`;
-  MONTHS.forEach(m => {
-    const mp  = MPHASE[m.key];
-    const sc2 = mp ? mp.ph.subCls : '';
-    const bc  = mp && mp.isFirst ? mp.ph.startBorder : '';
-    subRow += `<th class="sub-plan ${sc2} ${bc}">Plan</th>
-               <th class="sub-act  ${sc2}">Actual</th>
-               <th class="sub-var  ${sc2}">Variation</th>`;
-  });
-  subRow += `</tr>`;
-
-  // ---- Data rows ----
-  // Pre-compute annual sums per channel
-  let dataRows = '';
-  const totals = { plan: {}, act: {}, hasAct: {} }; // by monthKey
-  MONTHS.forEach(m => { totals.plan[m.key] = 0; totals.act[m.key] = null; totals.hasAct[m.key] = false; });
-
-  CHANNELS.forEach(ch => {
-    let annPlan = 0, annAct = null, hasAnnAct = false;
-    let cells = '';
-
-    MONTHS.forEach(m => {
-      const pv  = getv(pL, ch, m.key);
-      const av  = getv(aL, ch, m.key);
-      const thr = alerts[ch] || alerts['All'] || { w: 10, c: 20 };
-      const flg = flag(av, pv, thr.w, thr.c);
-
-      if (pv != null) { annPlan += pv; totals.plan[m.key] += pv; }
-      if (av != null) {
-        annAct = (annAct || 0) + av;
-        hasAnnAct = true;
-        if (!totals.hasAct[m.key]) totals.act[m.key] = 0;
-        totals.act[m.key] += av;
-        totals.hasAct[m.key] = true;
-      }
-
-      const mp  = MPHASE[m.key];
-      const bc  = mp && mp.isFirst ? mp.ph.startBorder : '';
-      cells += triCells(ch, m.key, pv, av, flg, bc, S.dept);
-    });
-
-    // Annual cells
-    const annFlg  = flag(hasAnnAct ? annAct : null, annPlan, 10, 20);
-    const annVar  = hasAnnAct && annAct != null ? annAct - annPlan : null;
-    const annPlanFmt = fmtUSD(annPlan || null);
-    const annActFmt  = fmtUSD(hasAnnAct ? annAct : null);
-    const annVarFmt  = fmtVar(annVar, annPlan);
-    const annVarCls  = varCls(annVar);
-
-    dataRows += `<tr>
-      <td class="td-label">${esc(ch)}</td>
-      <td class="td-sub td-plan ann-group" onclick="startEdit(this,${q(S.dept)},${q(ch)},'annual','planned')">${annPlanFmt}</td>
-      <td class="td-sub td-act ${annFlg}"  onclick="startEdit(this,${q(S.dept)},${q(ch)},'annual','actual')">${annActFmt}</td>
-      <td class="td-sub td-var ${annVarCls} ann-group-right">${annVarFmt}</td>
-      ${cells}
-    </tr>`;
-  });
-
-  // ---- Total row ----
-  let totalRow = `<tr class="row-total"><td class="td-label">TOTAL</td>`;
-  let grandPlan = 0, grandAct = null, hasGrand = false;
-
-  // Annual total cells
-  MONTHS.forEach(m => {
-    grandPlan += totals.plan[m.key] || 0;
-    if (totals.hasAct[m.key] && totals.act[m.key] != null) {
-      grandAct = (grandAct || 0) + totals.act[m.key];
-      hasGrand = true;
-    }
-  });
-  const grandVar    = hasGrand ? grandAct - grandPlan : null;
-  const grandFlg    = flag(hasGrand ? grandAct : null, grandPlan, 10, 20);
-  totalRow += `
-    <td class="td-sub td-plan ann-group">${fmtUSD(grandPlan || null)}</td>
-    <td class="td-sub td-act ${grandFlg}">${fmtUSD(hasGrand ? grandAct : null)}</td>
-    <td class="td-sub td-var ${varCls(grandVar)} ann-group-right">${fmtVar(grandVar, grandPlan)}</td>`;
-
-  MONTHS.forEach(m => {
-    const tp  = totals.plan[m.key] || null;
-    const ta2 = totals.hasAct[m.key] ? totals.act[m.key] : null;
-    const tv  = ta2 != null && tp != null ? ta2 - tp : null;
-    const flg = flag(ta2, tp, 10, 20);
-    const mp  = MPHASE[m.key];
-    const bc  = mp && mp.isFirst ? mp.ph.startBorder : '';
-    totalRow += `
-      <td class="td-sub td-plan ${bc}">${fmtUSD(tp)}</td>
-      <td class="td-sub td-act ${flg}">${fmtUSD(ta2)}</td>
-      <td class="td-sub td-var ${varCls(tv)}">${fmtVar(tv, tp)}</td>`;
-  });
-  totalRow += `</tr>`;
-
-  document.getElementById('table-area').innerHTML = `
-    <table class="year-table">
-      <colgroup>${cols}</colgroup>
-      <thead>${phRow}${moRow}${subRow}</thead>
-      <tbody>${dataRows}${totalRow}</tbody>
-    </table>`;
-}
-
-// Build 3 sub-cells (Plan | Actual | Variation) for a single channel+month
-function triCells(ch, monthKey, pv, av, flg, borderCls, dept) {
-  const variation = (pv != null && av != null) ? av - pv : null;
-  return `
-    <td class="td-sub td-plan ${borderCls}" onclick="startEdit(this,${q(dept)},${q(ch)},${q(monthKey)},'planned')">${fmtUSD(pv)}</td>
-    <td class="td-sub td-act ${flg}"        onclick="startEdit(this,${q(dept)},${q(ch)},${q(monthKey)},'actual')">${fmtUSD(av)}</td>
-    <td class="td-sub td-var ${varCls(variation)}">${fmtVar(variation, pv)}</td>`;
-}
-
-// ============================================================
-// INLINE EDIT
-// ============================================================
-function startEdit(cell, dept, ch, monthKey, type) {
-  if (cell.querySelector('input')) return;
-  if (monthKey === 'annual') { alert('Enter values in individual month cells — the annual column is calculated automatically.'); return; }
-
-  const field = type === 'actual' ? 'Actual Amount in USD' : 'Planned Amount in USD';
-  const store = type === 'actual' ? S.data.actual : S.data.planned;
-  const ex    = (store || []).find(r =>
-    r['Department'] === dept && r['Program'] === PROG &&
-    r['Category']   === CAT  && r['Metric']  === ch  && r['Month'] === monthKey
-  );
-  const cur = ex ? parseFloat(ex[field]) : '';
-
-  const inp = document.createElement('input');
-  inp.type = 'number'; inp.value = isNaN(cur) ? '' : cur;
-  inp.placeholder = '0'; inp.min = '0';
-
-  cell.innerHTML = ''; cell.appendChild(inp);
-  inp.focus(); inp.select();
-
-  async function commit() {
-    const val = inp.value.trim();
-    if (val === '') { renderTable(); return; }
-    const amount = parseFloat(val);
-    if (isNaN(amount)) { renderTable(); return; }
-
-    cell.innerHTML = '<span style="font-size:11px;color:var(--gray-400)">…</span>';
-    try {
-      await post(type === 'actual' ? 'saveActual' : 'savePlanned', {
-        department: dept, program: PROG, category: CAT,
-        metric: ch, month: monthKey, amount
-      });
-      if (ex) ex[field] = amount;
-      else {
-        const nr = { Department: dept, Program: PROG, Category: CAT, Metric: ch, Month: monthKey };
-        nr[field] = amount;
-        store.push(nr);
-      }
-      showToast('✓ Saved');
-      renderAll();
-    } catch(e) {
-      cell.innerHTML = `<span style="color:var(--red);font-size:11px">Error</span>`;
-      setTimeout(renderTable, 1500);
-    }
-  }
-
-  inp.addEventListener('blur', commit);
-  inp.addEventListener('keydown', e => {
-    if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
-    if (e.key === 'Escape') renderTable();
-  });
-}
-
-// ============================================================
-// DEPT
-// ============================================================
-function pickDept(dept) {
-  S.dept = dept;
-  document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + dept).classList.add('active');
-  renderAll();
-}
-
-// ============================================================
-// FLAG / FORMAT HELPERS
-// ============================================================
-function flag(actual, planned, wPct, cPct) {
-  if (actual == null || planned == null || planned === 0) return 'empty';
-  const d = ((actual - planned) / Math.abs(planned)) * 100;
-  if (d > cPct) return 'critical';
-  if (d > wPct) return 'warn';
+function getFlag(plan, actual, dept, channel) {
+  if (actual === null || actual === 0) return 'empty';
+  if (!plan || plan === 0) return actual > 0 ? 'unplanned' : 'empty';
+  const pct = ((actual - plan) / plan) * 100;
+  const t   = getThresholds(dept, channel);
+  if (pct > t.crit) return 'crit';
+  if (pct > t.warn) return 'warn';
+  if (pct < -t.warn) return 'underok';
   return 'ok';
 }
 
-function varCls(v) {
-  if (v == null) return 'empty';
-  if (v > 0)    return 'over';
-  if (v < 0)    return 'under';
-  return 'zero';
+function getThresholds(dept, channel) {
+  const alerts = S.data && S.data.alerts || [];
+  const match  = alerts.find(r => (s(r['Department']) === dept || s(r['Department']) === 'All') && (s(r['Channel']) === channel || s(r['Channel']) === 'All'));
+  return {
+    warn: parseFloat((match || {})['Warning Percent Over Plan']) || 10,
+    crit: parseFloat((match || {})['Critical Percent Over Plan']) || 20,
+  };
 }
 
-function fmtVar(v, planned) {
-  if (v == null) return '—';
-  if (v === 0)   return '<span>$0</span><span style="font-size:10px;opacity:0.7">0%</span>';
-  const neg  = v < 0;
-  const abs  = (neg ? '-$' : '+$') + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: 0 });
-  const pct  = (planned && planned !== 0)
-    ? (neg ? '' : '+') + (v / Math.abs(planned) * 100).toFixed(1) + '%'
-    : '';
-  return `<span>${abs}</span>${pct ? `<span style="font-size:10px;opacity:0.75">${pct}</span>` : ''}`;
+function getNote(dept, channel, month) {
+  const row = (S.data && S.data.varianceNotes || []).find(r =>
+    s(r['Department']) === dept && s(r['Channel']) === channel && s(r['Month']) === month
+  );
+  return row || null;
 }
 
-function fmtUSD(val) {
-  if (val == null || isNaN(val)) return '—';
-  if (val === 0) return '$0';
-  const neg = val < 0;
-  return (neg ? '-$' : '$') + Math.abs(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+function getFunnelRow(dept, channel, month) {
+  if (!S.data || !S.data.enrollActuals) return null;
+  if (!month || month === 'YTD') {
+    const rows = S.data.enrollActuals.filter(r => s(r['Department']) === dept && s(r['Channel']) === channel);
+    if (!rows.length) return null;
+    const agg = {};
+    FUNNEL_STAGES.forEach(st => { agg[st] = rows.reduce((sum, r) => sum + (parseFloat(r[st]) || 0), 0); });
+    return agg;
+  }
+  return S.data.enrollActuals.find(r => s(r['Department']) === dept && s(r['Channel']) === channel && s(r['Month']) === month) || null;
 }
 
-function fmtK(val) {
-  if (val == null || isNaN(val)) return '—';
-  if (Math.abs(val) >= 1000000) return (val < 0 ? '-' : '') + '$' + (Math.abs(val)/1000000).toFixed(1) + 'M';
-  if (Math.abs(val) >= 1000)    return (val < 0 ? '-' : '') + '$' + (Math.abs(val)/1000).toFixed(0) + 'K';
-  return '$' + val.toLocaleString('en-US', { maximumFractionDigits: 0 });
+function getEnrollTarget(dept) {
+  const rows = (S.data && S.data.enrollTargets || []).filter(r => s(r['Department']) === dept);
+  return {
+    enrollments: rows.reduce((sum, r) => sum + (parseFloat(r['Annual Target Enrollments']) || 0), 0),
+    leads:       rows.reduce((sum, r) => sum + (parseFloat(r['Annual Target Leads'])       || 0), 0),
+    programs:    rows,
+  };
 }
 
-function showLoading() {
-  document.getElementById('table-area').innerHTML =
-    `<div class="loading"><div class="spinner"></div><span>Loading…</span></div>`;
-  document.getElementById('summary-row').innerHTML = '';
+function computeYTD(dept) {
+  const chs = isCentralDept(dept) ? CENTRAL_CHANNELS : ALL_CHANNELS;
+  let p = 0, a = 0;
+  MONTHS.forEach(m => {
+    const hasData = chs.some(ch => { const v = getSpend(dept, ch, m.key, 'actual'); return v !== null && v > 0; });
+    if (hasData) {
+      chs.forEach(ch => {
+        p += getSpend(dept, ch, m.key, 'planned') || 0;
+        a += getSpend(dept, ch, m.key, 'actual')  || 0;
+      });
+    }
+  });
+  return {planned: p, actual: a};
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+function computeForecast(dept) {
+  const tgt = getEnrollTarget(dept);
+  const ea  = (S.data && S.data.enrollActuals || []).filter(r => s(r['Department']) === dept);
+  const ytdLeads    = ea.reduce((sum, r) => sum + (parseFloat(r['Total Leads'])    || 0), 0);
+  const ytdEnrolled = ea.reduce((sum, r) => sum + (parseFloat(r['Retained Admits'])|| 0), 0);
+  const ytd = computeYTD(dept);
+  const cpl  = ytdLeads    > 0 ? ytd.actual / ytdLeads    : null;
+  const cac  = ytdEnrolled > 0 ? ytd.actual / ytdEnrolled : null;
+  const conv = ytdLeads    > 0 ? ytdEnrolled / ytdLeads   : null;
+  const planSpend = getAnnualTotal(dept, 'planned');
+  return {
+    ytdSpend: ytd.actual, ytdLeads, ytdEnrolled,
+    cpl, cac, conv,
+    planCPL: tgt.leads > 0 ? planSpend / tgt.leads : null,
+    planCAC: tgt.enrollments > 0 ? planSpend / tgt.enrollments : null,
+    planConv: tgt.leads > 0 ? tgt.enrollments / tgt.leads : null,
+    target: tgt.enrollments, targetLeads: tgt.leads,
+    remaining: tgt.enrollments - ytdEnrolled,
+    fcSpend: conv > 0 && cpl > 0 ? ((tgt.enrollments - ytdEnrolled) / conv) * cpl : null,
+  };
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ──────────────────────────────────────────────────────────────
+// FORMATTING
+// ──────────────────────────────────────────────────────────────
+function s(v) { return String(v || '').trim(); }
+function fmt(v) {
+  if (v === null || v === undefined || v === 0) return '<span style="color:#ccc">—</span>';
+  return '$' + Math.abs(v).toLocaleString('en-US', {maximumFractionDigits:0});
 }
-function q(s) {
-  return "'" + String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
+function fmtRaw(v) { return v ? '$' + Math.abs(v).toLocaleString('en-US', {maximumFractionDigits:0}) : '—'; }
+function fmtVar(abs, pct) {
+  if (abs === null || abs === undefined) return '<span style="color:#ccc">—</span>';
+  const cls  = abs > 0 ? 'over' : abs < 0 ? 'under' : 'zero';
+  const sign = abs > 0 ? '+' : '';
+  return `<div class="var-inner">
+    <span class="var-abs ${cls}">${sign}$${Math.abs(abs).toLocaleString('en-US',{maximumFractionDigits:0})}</span>
+    ${pct !== null ? `<span class="var-pct ${cls}">${sign}${pct.toFixed(1)}%</span>` : ''}
+  </div>`;
 }
+function numFmt(n) { return n ? Number(n).toLocaleString('en-US') : '—'; }
+function pctFmt(a, b) { return !b || b === 0 ? '—' : ((a/b)*100).toFixed(1)+'%'; }
+function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ──────────────────────────────────────────────────────────────
+// RENDER ORCHESTRATION
+// ──────────────────────────────────────────────────────────────
+function renderAll() {
+  if (!S.data) return;
+
+  // Build dynamic dept tabs
+  const deptNav = document.getElementById('deptNav');
+  deptNav.innerHTML = S.depts.map(dept =>
+    `<button class="dept-tab ${dept === S.dept ? 'active' : ''}" onclick="setDept('${esc(dept)}')">${esc(dept)}</button>`
+  ).join('');
+
+  // View tabs (hidden for Central)
+  const isCentral = isCentralDept(S.dept);
+  document.getElementById('viewNav').classList.toggle('hidden', isCentral);
+  if (!isCentral) {
+    document.querySelectorAll('.view-tab').forEach(b => b.classList.toggle('active', b.dataset.view === S.view));
+  }
+
+  renderSummaryCards();
+
+  const mc = document.getElementById('mainContent');
+  if (isCentral) {
+    mc.innerHTML = renderSpendView(S.dept);
+  } else {
+    switch(S.view) {
+      case 'spend':    mc.innerHTML = renderSpendView(S.dept); break;
+      case 'funnel':   mc.innerHTML = renderFunnelView(S.dept); break;
+      case 'forecast': mc.innerHTML = renderForecastView(S.dept); break;
+    }
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// SUMMARY CARDS
+// ──────────────────────────────────────────────────────────────
+function renderSummaryCards() {
+  const dept = S.dept;
+  const annPlan = getAnnualTotal(dept, 'planned');
+  const ytd     = computeYTD(dept);
+  const ytdPct  = ytd.planned > 0 ? ((ytd.actual / ytd.planned) * 100).toFixed(0)+'%' : '—';
+  const over    = ytd.actual > ytd.planned;
+  const noteCount = (S.data.varianceNotes||[]).filter(r => s(r['Department']) === dept).length;
+
+  let html = `
+    ${sc('Annual Plan', fmtRaw(annPlan), '', 'gold')}
+    ${sc('YTD Actual', fmtRaw(ytd.actual), ytdPct+' of YTD plan', over ? 'crit' : 'good')}
+  `;
+
+  if (!isCentralDept(dept)) {
+    const fc  = computeForecast(dept);
+    const tgt = getEnrollTarget(dept);
+    html += `
+      ${sc('Target Enrollments', numFmt(tgt.enrollments), numFmt(tgt.leads)+' lead target', 'gold')}
+      ${sc('Current CPL', fc.cpl ? '$'+Math.round(fc.cpl) : '—', fc.planCPL ? 'vs $'+Math.round(fc.planCPL)+' planned' : '—', fc.cpl && fc.planCPL && fc.cpl > fc.planCPL*1.15 ? 'warn' : 'good')}
+      ${sc('Variance Notes', noteCount+'', noteCount === 1 ? 'cell flagged' : 'cells flagged', noteCount > 3 ? 'warn' : noteCount > 0 ? 'gold' : '')}
+    `;
+  }
+
+  document.getElementById('summaryCards').innerHTML = html;
+}
+
+function sc(label, val, sub, cls) {
+  return `<div class="scard ${cls||''}">
+    <div class="sc-label">${label}</div>
+    <div class="sc-value">${val}</div>
+    ${sub ? `<div class="sc-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+// ──────────────────────────────────────────────────────────────
+// SPEND TABLE
+// ──────────────────────────────────────────────────────────────
+function renderSpendView(dept) {
+  return buildSpendTable(dept);
+}
+
+function buildSpendTable(dept) {
+  const chs = isCentralDept(dept) ? CENTRAL_CHANNELS : ALL_CHANNELS;
+  const TC  = 1 + 3 + MONTHS.length * 3;
+
+  let h = '<div class="table-wrap"><table class="spend-table"><thead>';
+
+  // Phase header row
+  h += '<tr>';
+  h += `<th class="ch-label sticky-col" rowspan="2">Channel</th>`;
+  h += `<th colspan="3" class="annual-hdr">Annual Total</th>`;
+  PHASES.forEach(ph => {
+    h += `<th colspan="${ph.keys.length * 3}" class="${ph.cls}-hdr">${ph.label}</th>`;
+  });
+  h += '</tr>';
+
+  // Month sub-headers
+  h += '<tr class="mrow">';
+  h += `<th class="annual-sub">Plan</th><th class="annual-sub">Actual</th><th class="annual-sub">Var</th>`;
+  MONTHS.forEach(m => {
+    const ph = PHASE_MAP[m.key]+'-sub';
+    h += `<th class="${ph}">${m.label}</th><th class="${ph}">Act</th><th class="${ph}">Var</th>`;
+  });
+  h += '</tr></thead><tbody>';
+
+  // Rows
+  chs.forEach(ch => { h += buildRow(ch, dept, chs); });
+
+  // Total
+  h += buildTotalRow(dept, chs);
+  h += '</tbody></table></div>';
+
+  h += `<div class="info-box">
+    💡 <strong>Data entry:</strong> All planned budgets and actuals are entered directly in your Google Sheet
+    (<em>Planned Budget</em> and <em>Actual Expenses</em> tabs).
+    Add variance notes in the <em>Variance Notes</em> tab.
+    Click any highlighted cell above to see the commentary. Refresh the dashboard to see latest data.
+  </div>`;
+
+  return h;
+}
+
+function buildRow(channel, dept) {
+  const annP = getAnnualSpend(dept, channel, 'planned');
+  const annA = getAnnualSpend(dept, channel, 'actual');
+  const annV = (annP > 0 || annA > 0) ? annA - annP : null;
+  const annVP = annV !== null && annP > 0 ? (annV / annP) * 100 : null;
+
+  let h = `<tr data-ch="${esc(channel)}" data-dept="${esc(dept)}">`;
+  h += `<td class="ch-name sticky-col">${esc(channel)}</td>`;
+  h += `<td class="amt annual-col">${fmt(annP)}</td>`;
+  h += `<td class="amt annual-col">${fmt(annA)}</td>`;
+  h += `<td class="var-cell annual-col">${fmtVar(annV, annVP)}</td>`;
+
+  MONTHS.forEach(m => {
+    const plan   = getSpend(dept, channel, m.key, 'planned');
+    const actual = getSpend(dept, channel, m.key, 'actual');
+    const vAbs   = (plan !== null || actual !== null) ? (actual||0) - (plan||0) : null;
+    const vPct   = vAbs !== null && plan > 0 ? (vAbs/plan)*100 : null;
+    const flag   = getFlag(plan, actual, dept, channel);
+    const note   = getNote(dept, channel, m.key);
+    const ph     = PHASE_MAP[m.key] || '';
+
+    const fCls   = flag === 'warn' ? ' flag-warn' : flag === 'crit' ? ' flag-crit' : '';
+    const clickData = `data-dept="${esc(dept)}" data-ch="${esc(channel)}" data-mo="${m.key}"`;
+
+    h += `<td class="amt ${ph}" ${clickData}>${fmt(plan)}</td>`;
+
+    // Actual cell — clickable if there's a flag or note
+    const hasNote  = !!note;
+    const dotCls   = hasNote && flag === 'crit' ? 'crit-note' : hasNote && flag === 'warn' ? 'flag-note' : hasNote ? 'has-note' : '';
+    const dotHtml  = (flag !== 'empty' || hasNote)
+      ? `<span class="note-dot ${dotCls}" ${clickData} onclick="openCell(event,'${esc(dept)}','${esc(channel)}','${m.key}')"></span>`
+      : '';
+
+    h += `<td class="amt ${ph}${fCls} clickable" onclick="openCell(event,'${esc(dept)}','${esc(channel)}','${m.key}')" ${clickData}>`;
+    h += `<span style="display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;width:100%">${fmtActualText(actual)}${dotHtml}</span>`;
+    h += `</td>`;
+
+    h += `<td class="var-cell ${ph}">${fmtVar(vAbs, vPct)}</td>`;
+  });
+
+  h += '</tr>';
+  return h;
+}
+
+function fmtActualText(v) {
+  if (v === null || v === undefined || v === 0) return '<span style="color:#ccc">—</span>';
+  return '$'+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0});
+}
+
+function buildTotalRow(dept, chs) {
+  const annP = chs.reduce((s, ch) => s + getAnnualSpend(dept, ch, 'planned'), 0);
+  const annA = chs.reduce((s, ch) => s + getAnnualSpend(dept, ch, 'actual'),  0);
+  const annV = annA - annP;
+  const annVP = annP > 0 ? (annV/annP)*100 : null;
+
+  let h = '<tr class="total-row">';
+  h += `<td class="ch-name sticky-col">Total</td>`;
+  h += `<td class="amt annual-col">${fmt(annP)}</td>`;
+  h += `<td class="amt annual-col">${fmt(annA)}</td>`;
+  h += `<td class="var-cell annual-col">${fmtVar(annV, annVP)}</td>`;
+
+  MONTHS.forEach(m => {
+    const p  = chs.reduce((s, ch) => s + (getSpend(dept, ch, m.key, 'planned')||0), 0);
+    const a  = chs.reduce((s, ch) => s + (getSpend(dept, ch, m.key, 'actual') ||0), 0);
+    const v  = p > 0 || a > 0 ? a - p : null;
+    const vp = v !== null && p > 0 ? (v/p)*100 : null;
+    const ph = PHASE_MAP[m.key] || '';
+    h += `<td class="amt ${ph}">${fmt(p)}</td>`;
+    h += `<td class="amt ${ph}">${fmt(a)}</td>`;
+    h += `<td class="var-cell ${ph}">${fmtVar(v, vp)}</td>`;
+  });
+
+  h += '</tr>';
+  return h;
+}
+
+// ──────────────────────────────────────────────────────────────
+// FUNNEL VIEW
+// ──────────────────────────────────────────────────────────────
+function renderFunnelView(dept) {
+  const sel = S.funnelMonth;
+  let ctrl = '<div class="funnel-controls"><label>Period:</label>';
+  ctrl += `<button class="month-btn${sel==='YTD'?' active':''}" onclick="setFunnelMonth('YTD')">YTD</button>`;
+  MONTHS.forEach(m => {
+    ctrl += `<button class="month-btn${sel===m.key?' active':''}" onclick="setFunnelMonth('${m.key}')">${m.label}</button>`;
+  });
+  ctrl += '</div>';
+
+  let h = ctrl + '<div class="funnel-wrap"><table class="funnel-table"><thead><tr>';
+  h += '<th>Channel</th>';
+  FUNNEL_STAGES.forEach(st => { h += `<th>${st}</th>`; });
+  h += '</tr></thead><tbody>';
+
+  const totals = {};
+  FUNNEL_STAGES.forEach(st => { totals[st] = 0; });
+
+  FUNNEL_CHANNELS.forEach(ch => {
+    const row = getFunnelRow(dept, ch, sel);
+    h += '<tr>';
+    h += `<td>${esc(ch)}</td>`;
+    FUNNEL_STAGES.forEach((st, i) => {
+      const v = row ? (parseFloat(row[st])||0) : 0;
+      totals[st] = (totals[st]||0) + v;
+      let conv = '';
+      if (i > 0 && row) {
+        const prev = parseFloat(row[FUNNEL_STAGES[i-1]])||0;
+        if (prev > 0) conv = `<span class="conv-rate">${pctFmt(v,prev)}</span>`;
+      }
+      h += `<td>${v > 0 ? numFmt(v) : '<span style="color:#ccc">—</span>'}${conv}</td>`;
+    });
+    h += '</tr>';
+  });
+
+  h += '<tr class="total-row"><td>Total</td>';
+  FUNNEL_STAGES.forEach((st, i) => {
+    const v = totals[st]||0;
+    let conv = '';
+    if (i > 0) {
+      const prev = totals[FUNNEL_STAGES[i-1]]||0;
+      if (prev > 0) conv = `<span class="conv-rate">${pctFmt(v,prev)}</span>`;
+    }
+    h += `<td>${v > 0 ? numFmt(v) : '—'}${conv}</td>`;
+  });
+  h += '</tr></tbody></table></div>';
+
+  h += `<div class="info-box">
+    💡 <strong>Funnel data entry:</strong> Enter leads and conversion data in the <em>Enrollment Actuals</em> tab of your Google Sheet.
+    Format: Department | Channel | Month | Total Leads | App Starts | ... | Retained Admits
+  </div>`;
+
+  return h;
+}
+
+// ──────────────────────────────────────────────────────────────
+// FORECAST VIEW
+// ──────────────────────────────────────────────────────────────
+function renderForecastView(dept) {
+  const fc  = computeForecast(dept);
+  const tgt = getEnrollTarget(dept);
+
+  let metrics = '<div class="metric-grid">';
+  metrics += mCard('Cost per Lead (CPL)', fc.cpl ? '$'+Math.round(fc.cpl) : '—', fc.planCPL ? 'Plan: $'+Math.round(fc.planCPL) : 'Set lead targets');
+  metrics += mCard('Cost per Admission', fc.cac ? '$'+Math.round(fc.cac) : '—', fc.planCAC ? 'Plan: $'+Math.round(fc.planCAC) : 'Set enrollment targets');
+  metrics += mCard('Conv. Rate (Lead→Enroll)', fc.conv ? (fc.conv*100).toFixed(2)+'%' : '—', fc.planConv ? 'Plan: '+(fc.planConv*100).toFixed(2)+'%' : '—');
+  metrics += mCard('YTD Enrolled', numFmt(fc.ytdEnrolled), 'of '+numFmt(tgt.enrollments)+' target');
+  metrics += mCard('YTD Leads', numFmt(fc.ytdLeads), 'of '+numFmt(tgt.targetLeads)+' target');
+  metrics += mCard('Forecast Remaining Spend', fc.fcSpend ? fmtRaw(fc.fcSpend) : 'Needs data', 'to close remaining target');
+  metrics += '</div>';
+
+  // Months with actuals
+  const actualMonths = new Set(
+    MONTHS.filter(m => ALL_CHANNELS.some(ch => {
+      const a = getSpend(dept, ch, m.key, 'actual');
+      return a !== null && a > 0;
+    })).map(m => m.key)
+  );
+  const remMonths     = MONTHS.filter(m => !actualMonths.has(m.key));
+  const remPlanTotal  = remMonths.reduce((s, m) => s + getMonthTotal(dept, m.key, 'planned'), 0);
+
+  let tbl = '<div class="fc-table-wrap"><table class="fc-table"><thead><tr>';
+  tbl += '<th>Month</th><th>Original Plan</th><th>Actual / Forecast</th><th>Variance</th>';
+  tbl += '</tr></thead><tbody>';
+
+  let sumP = 0, sumAF = 0;
+  MONTHS.forEach(m => {
+    const isAct  = actualMonths.has(m.key);
+    const planAmt = getMonthTotal(dept, m.key, 'planned');
+    let afAmt = null, badge = '';
+    if (isAct) {
+      afAmt = getMonthTotal(dept, m.key, 'actual');
+      badge = '<span class="badge badge-actual">Actual</span>';
+    } else if (fc.fcSpend !== null && remPlanTotal > 0) {
+      afAmt = fc.fcSpend * (planAmt / remPlanTotal);
+      badge = '<span class="badge badge-forecast">Forecast</span>';
+    }
+    const vAbs = afAmt !== null && planAmt > 0 ? afAmt - planAmt : null;
+    const vPct = vAbs !== null && planAmt > 0 ? (vAbs/planAmt)*100 : null;
+    sumP  += planAmt;
+    sumAF += afAmt || 0;
+    tbl += `<tr class="${isAct ? 'is-actual' : afAmt !== null ? 'is-forecast' : ''}">`;
+    tbl += `<td>${m.label}${badge}</td><td>${fmtRaw(planAmt)}</td>`;
+    tbl += `<td>${afAmt !== null ? fmtRaw(afAmt) : '⏳'}</td>`;
+    tbl += `<td>${vAbs !== null ? fmtVar(vAbs, vPct) : '—'}</td>`;
+    tbl += '</tr>';
+  });
+  const tV = sumAF - sumP;
+  const tVP = sumP > 0 ? (tV/sumP)*100 : null;
+  tbl += `<tfoot><tr><td>Annual Total</td><td>${fmtRaw(sumP)}</td><td>${fmtRaw(sumAF)}</td><td>${fmtVar(tV,tVP)}</td></tr></tfoot>`;
+  tbl += '</tbody></table></div>';
+
+  return metrics + tbl;
+}
+
+function mCard(label, val, sub) {
+  return `<div class="metric-card">
+    <div class="mc-label">${label}</div>
+    <div class="mc-val">${val}</div>
+    <div class="mc-plan">${sub}</div>
+  </div>`;
+}
+
+// ──────────────────────────────────────────────────────────────
+// NOTE PANEL
+// ──────────────────────────────────────────────────────────────
+function openCell(evt, dept, channel, monthKey) {
+  evt && evt.stopPropagation();
+
+  const plan   = getSpend(dept, channel, monthKey, 'planned');
+  const actual = getSpend(dept, channel, monthKey, 'actual');
+  const flag   = getFlag(plan, actual, dept, channel);
+  const note   = getNote(dept, channel, monthKey);
+  const mo     = MONTHS.find(m => m.key === monthKey) || {label: monthKey};
+
+  const vAbs   = (plan !== null || actual !== null) ? (actual||0) - (plan||0) : null;
+  const vPct   = vAbs !== null && plan > 0 ? (vAbs/plan)*100 : null;
+  const sign   = vAbs !== null ? (vAbs >= 0 ? '+' : '') : '';
+
+  const flagLabel = flag === 'crit' ? '🔴 Over budget (critical)' : flag === 'warn' ? '🟡 Over budget (warning)' : flag === 'ok' ? '✅ On budget' : flag === 'underok' ? '🟢 Under budget' : '⏳ No actuals yet';
+  const badgeCls  = flag === 'crit' ? 'over' : flag === 'warn' ? 'over' : 'ok';
+
+  document.getElementById('panelSub').textContent  = `${dept} · ${mo.label}`;
+  document.getElementById('panelTitle').textContent = channel;
+
+  let body = `
+    <div class="panel-section">
+      <div class="var-row">
+        <div class="var-block">
+          <div class="vb-label">Planned</div>
+          <div class="vb-val">${fmtRaw(plan)}</div>
+        </div>
+        <div class="var-block">
+          <div class="vb-label">Actual</div>
+          <div class="vb-val">${fmtRaw(actual)}</div>
+        </div>
+      </div>
+      <div class="variance-badge ${badgeCls}">
+        ${flagLabel}
+        ${vAbs !== null ? ` &nbsp;·&nbsp; ${sign}$${Math.abs(vAbs).toLocaleString('en-US',{maximumFractionDigits:0})} (${sign}${vPct !== null ? vPct.toFixed(1) : '?'}%)` : ''}
+      </div>
+    </div>`;
+
+  body += `<div class="panel-section">
+    <div class="ps-label">Variance Commentary</div>
+    ${note
+      ? `<div class="note-box">${esc(note['Note'] || '')}<div class="note-date">Added ${esc(note['Date Added'] || '')}</div></div>`
+      : `<div class="note-box empty">No note added yet.</div>`
+    }
+    <div class="panel-hint">
+      📝 <strong>To add a note:</strong><br/>
+      Go to your Google Sheet → <em>Variance Notes</em> tab → add a row:<br/>
+      <code style="font-size:10.5px;background:#fff;padding:1px 4px;border-radius:3px;">${esc(dept)} | ${esc(channel)} | ${monthKey} | your note here</code>
+    </div>
+  </div>`;
+
+  document.getElementById('panelBody').innerHTML = body;
+  document.getElementById('notePanel').classList.add('open');
+  document.body.classList.add('panel-open');
+}
+
+function showAllNotes() {
+  const dept  = S.dept;
+  const notes = (S.data && S.data.varianceNotes || []).filter(r => s(r['Department']) === dept);
+
+  document.getElementById('panelSub').textContent  = dept;
+  document.getElementById('panelTitle').textContent = 'All Variance Notes';
+
+  let body = '';
+  if (!notes.length) {
+    body = `<p style="color:var(--gray-400);font-size:12px;padding:8px 0">No variance notes for ${esc(dept)} yet.</p>`;
+    body += `<div class="panel-hint">📝 <strong>Add notes</strong> in your Google Sheet → <em>Variance Notes</em> tab with columns: Department | Channel | Month | Note | Date Added</div>`;
+  } else {
+    // Group by month
+    const byMonth = {};
+    notes.forEach(n => {
+      const mo = s(n['Month']);
+      if (!byMonth[mo]) byMonth[mo] = [];
+      byMonth[mo].push(n);
+    });
+    Object.keys(byMonth).sort().forEach(mo => {
+      const moLabel = (MONTHS.find(m => m.key === mo) || {label:mo}).label;
+      body += `<div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-400);padding:8px 0 4px">${moLabel}</div>`;
+      byMonth[mo].forEach(n => {
+        const ch     = s(n['Channel']);
+        const plan   = getSpend(dept, ch, mo, 'planned');
+        const actual = getSpend(dept, ch, mo, 'actual');
+        const flag   = getFlag(plan, actual, dept, ch);
+        const fCls   = flag === 'crit' ? 'crit' : flag === 'warn' ? 'warn' : '';
+        body += `<div class="note-list-item" onclick="openCell(null,'${esc(dept)}','${esc(ch)}','${mo}')">
+          <div class="nli-head">
+            <span class="nli-channel">${esc(ch)}</span>
+            ${fCls ? `<span class="nli-flag ${fCls}">${flag}</span>` : ''}
+            <span class="nli-month">${moLabel}</span>
+          </div>
+          <div class="nli-text">${esc(n['Note']||'')}</div>
+        </div>`;
+      });
+    });
+  }
+
+  document.getElementById('panelBody').innerHTML = body;
+  document.getElementById('notePanel').classList.add('open');
+  document.body.classList.add('panel-open');
+}
+
+function closePanel() {
+  document.getElementById('notePanel').classList.remove('open');
+  document.body.classList.remove('panel-open');
+}
+
+// Close panel if clicking outside
+document.addEventListener('click', function(e) {
+  const panel = document.getElementById('notePanel');
+  if (panel.classList.contains('open') && !panel.contains(e.target)) {
+    // Only close if not clicking a cell or the All Notes button
+    const isCell   = e.target.closest('.spend-table');
+    const isButton = e.target.closest('.btn-all-notes');
+    if (!isCell && !isButton) closePanel();
+  }
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+// ──────────────────────────────────────────────────────────────
+// STATE SETTERS
+// ──────────────────────────────────────────────────────────────
+function setDept(dept) {
+  S.dept = dept;
+  S.view = 'spend';
+  document.querySelectorAll('.view-tab').forEach(b => b.classList.toggle('active', b.dataset.view === 'spend'));
+  closePanel();
+  renderAll();
+}
+
+function setView(view) {
+  S.view = view;
+  renderAll();
+}
+
+function setFunnelMonth(mo) {
+  S.funnelMonth = mo;
+  renderAll();
+}
+
+// ──────────────────────────────────────────────────────────────
+// API
+// ──────────────────────────────────────────────────────────────
+async function loadAndRender() {
+  showLoading();
+  try {
+    const resp = await fetch(API_URL + '?action=getAll');
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    S.data = data;
+    // Build dept order from programs
+    const progs = data.programs || {};
+    S.depts = (progs.__order || Object.keys(progs).filter(k => k !== '__order'));
+    if (!S.dept || !S.depts.includes(S.dept)) S.dept = S.depts[0] || 'PG';
+    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date(data.timestamp).toLocaleTimeString();
+  } catch(e) {
+    toast('Load failed: ' + e.message, true);
+    if (!S.data) S.data = {planned:[],actual:[],enrollTargets:[],enrollActuals:[],varianceNotes:[],alerts:[],feeStructure:[]};
+    if (!S.depts.length) S.depts = ['PG','UG','Exec','Central'];
+    if (!S.dept) S.dept = S.depts[0];
+  } finally {
+    hideLoading();
+  }
+  renderAll();
+}
+
+// ──────────────────────────────────────────────────────────────
+// UTILS
+// ──────────────────────────────────────────────────────────────
+function toast(msg, isErr) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (isErr ? ' err' : '');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { el.className = ''; }, 2800);
+}
+function showLoading()  { document.getElementById('loadingBar').classList.add('active'); }
+function hideLoading()  { document.getElementById('loadingBar').classList.remove('active'); }
+
+// ── Bootstrap ──
+loadAndRender();
 </script>
 </body>
 </html>
