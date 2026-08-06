@@ -333,7 +333,8 @@ const ALL_CHANNELS = [
 // ──────────────────────────────────────────────────────────────
 // STATE
 // ──────────────────────────────────────────────────────────────
-const S = { data: null, depts: [], dept: null };
+const DEPTS = ['PG', 'UG', 'Exec', 'Central'];
+const S = { data: null, depts: DEPTS, dept: 'PG' };
 
 // ──────────────────────────────────────────────────────────────
 // DATA HELPERS
@@ -819,15 +820,14 @@ async function loadAndRender() {
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     S.data  = data;
-    const progs = data.programs || {};
-    S.depts = progs.__order || Object.keys(progs).filter(k => k !== '__order');
-    if (!S.dept || !S.depts.includes(S.dept)) S.dept = S.depts[0] || 'PG';
+    // Departments are fixed — always PG / UG / Exec / Consolidated
+    S.depts = DEPTS;
+    if (!S.dept) S.dept = DEPTS[0];
     document.getElementById('lastUpdated').textContent = 'Updated ' + new Date(data.timestamp).toLocaleTimeString();
   } catch(e) {
     toast('Load failed: ' + e.message, true);
     if (!S.data) S.data = {centralBudget:[], allocations:[], actual:[], varianceNotes:[], alerts:[]};
-    if (!S.depts.length) S.depts = ['PG','UG','Exec','Central'];
-    if (!S.dept) S.dept = S.depts[0];
+    // depts always set — nothing to do here
   } finally {
     hideLoading();
   }
