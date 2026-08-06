@@ -139,9 +139,12 @@ body.panel-open #mainContent{margin-right:calc(var(--panel-w) + 10px);}
 .spend-table thead tr.mrow .ph4-sub{background:#56285a;}
 
 .spend-table tbody td{
-  padding:5px 7px;border-bottom:1px solid var(--gray-100);
+  padding:5px 9px;border-bottom:1px solid var(--gray-100);
   border-right:1px solid var(--gray-100);text-align:right;color:var(--gray-700);
 }
+/* Value cells — sized to hold up to $10,000,000 at 11.5px font */
+.spend-table tbody td.amt     { min-width:90px; }
+.spend-table tbody td.var-cell{ min-width:84px; }
 .spend-table tbody td.ch-name{
   text-align:left;font-weight:500;color:var(--gray-900);
   padding-left:10px;
@@ -446,13 +449,45 @@ const S = {
 
 // ──────────────────────────────────────────────────────────────
 // DATA HELPERS
+// Architecture:
+//   Central Budget sheet  = total pot per channel/month
+//   Department Allocations = absolute $ per dept/channel/month
+//   Actual Expenses        = per dept (PG/UG/Exec only)
+//   Central tab = computed aggregate of PG+UG+Exec
 // ──────────────────────────────────────────────────────────────
-function getSpend(dept, channel, month, type) {
+
+function getDeptPlanned(dept, channel, month) {
   if (!S.data) return null;
-  const store = type === 'planned' ? S.data.planned : S.data.actual;
-  const fld   = type === 'planned' ? 'Planned Amount in USD' : 'Actual Amount in USD';
-  const row   = store.find(r => s(r['Department']) === dept && s(r['Channel']) === channel && s(r['Month']) === month);
-  return row ? (parseFloat(row[fld]) || 0) : null;
+  if (dept === 'Central') {
+    // Central planned = total from Central Budget sheet
+    const row = (S.data.centralBudget || []).find(r =>
+      s(r['Channel']) === channel && s(r['Month']) === month);
+    return row ? (parseFloat(row['Total Budget in USD']) || 0) : null;
+  }
+  const row = (S.data.allocations || []).find(r =>
+    s(r['Department']) === dept && s(r['Channel']) === channel && s(r['Month']) === month);
+  return row ? (parseFloat(row['Allocated Amount in USD']) || 0) : null;
+}
+
+function getDeptActual(dept, channel, month) {
+  if (!S.data) return null;
+  if (dept === 'Central') {
+    // Central actual = PG + UG + Exec summed
+    const total = ['PG','UG','Exec'].reduce((sum, d) => {
+      const row = (S.data.actual || []).find(r =>
+        s(r['Department']) === d && s(r['Channel']) === channel && s(r['Month']) === month);
+      return sum + (row ? (parseFloat(row['Actual Amount in USD']) || 0) : 0);
+    }, 0);
+    return total || null;
+  }
+  const row = (S.data.actual || []).find(r =>
+    s(r['Department']) === dept && s(r['Channel']) === channel && s(r['Month']) === month);
+  return row ? (parseFloat(row['Actual Amount in USD']) || 0) : null;
+}
+
+// Keep for compatibility — planned uses getDeptPlanned, actual uses getDeptActual
+function getSpend(dept, channel, month, type) {
+  return type === 'planned' ? getDeptPlanned(dept, channel, month) : getDeptActual(dept, channel, month);
 }
 
 function getAnnualSpend(dept, channel, type) {
@@ -460,8 +495,8 @@ function getAnnualSpend(dept, channel, type) {
 }
 
 function getMonthTotal(dept, month, type) {
-  const chs = isCentralDept(dept) ? CENTRAL_CHANNELS : ALL_CHANNELS;
-  return chs.reduce((sum, ch) => sum + (getSpend(dept, ch, month, type) || 0), 0);
+  // All depts (including Central) show all 13 channels
+  return ALL_CHANNELS.reduce((sum, ch) => sum + (getSpend(dept, ch, month, type) || 0), 0);
 }
 
 function getAnnualTotal(dept, type) {
@@ -469,7 +504,7 @@ function getAnnualTotal(dept, type) {
 }
 
 function isCentralDept(dept) {
-  return dept.toLowerCase().includes('central');
+  return dept === 'Central';
 }
 
 function getFlag(plan, actual, dept, channel) {
@@ -521,14 +556,13 @@ function getEnrollTarget(dept) {
 }
 
 function computeYTD(dept) {
-  const chs = isCentralDept(dept) ? CENTRAL_CHANNELS : ALL_CHANNELS;
   let p = 0, a = 0;
   MONTHS.forEach(m => {
-    const hasData = chs.some(ch => { const v = getSpend(dept, ch, m.key, 'actual'); return v !== null && v > 0; });
+    const hasData = ALL_CHANNELS.some(ch => { const v = getDeptActual(dept, ch, m.key); return v !== null && v > 0; });
     if (hasData) {
-      chs.forEach(ch => {
-        p += getSpend(dept, ch, m.key, 'planned') || 0;
-        a += getSpend(dept, ch, m.key, 'actual')  || 0;
+      ALL_CHANNELS.forEach(ch => {
+        p += getDeptPlanned(dept, ch, m.key) || 0;
+        a += getDeptActual(dept, ch, m.key)  || 0;
       });
     }
   });
@@ -545,6 +579,11 @@ function computeForecast(dept) {
   const cac  = ytdEnrolled > 0 ? ytd.actual / ytdEnrolled : null;
   const conv = ytdLeads    > 0 ? ytdEnrolled / ytdLeads   : null;
   const planSpend = getAnnualTotal(dept, 'planned');
+  const remaining = Math.max(0, tgt.enrollments - ytdEnrolled); // never negative
+  const targetMet = tgt.enrollments > 0 && ytdEnrolled >= tgt.enrollments;
+  // If target already met, remaining spend forecast is 0 (not negative)
+  const fcSpend = targetMet ? 0
+    : (conv > 0 && cpl > 0 ? (remaining / conv) * cpl : null);
   return {
     ytdSpend: ytd.actual, ytdLeads, ytdEnrolled,
     cpl, cac, conv,
@@ -552,8 +591,7 @@ function computeForecast(dept) {
     planCAC: tgt.enrollments > 0 ? planSpend / tgt.enrollments : null,
     planConv: tgt.leads > 0 ? tgt.enrollments / tgt.leads : null,
     target: tgt.enrollments, targetLeads: tgt.leads,
-    remaining: tgt.enrollments - ytdEnrolled,
-    fcSpend: conv > 0 && cpl > 0 ? ((tgt.enrollments - ytdEnrolled) / conv) * cpl : null,
+    remaining, targetMet, fcSpend,
   };
 }
 
@@ -585,31 +623,20 @@ function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 function renderAll() {
   if (!S.data) return;
 
-  // Build dynamic dept tabs
+  // Build dynamic dept tabs — show "Consolidated" label for the Central aggregate tab
   const deptNav = document.getElementById('deptNav');
-  deptNav.innerHTML = S.depts.map(dept =>
-    `<button class="dept-tab ${dept === S.dept ? 'active' : ''}" onclick="setDept('${esc(dept)}')">${esc(dept)}</button>`
-  ).join('');
+  deptNav.innerHTML = S.depts.map(dept => {
+    const label = dept === 'Central' ? 'Consolidated' : esc(dept);
+    return `<button class="dept-tab ${dept === S.dept ? 'active' : ''}" onclick="setDept('${esc(dept)}')">${label}</button>`;
+  }).join('');
 
-  // View tabs (hidden for Central)
-  const isCentral = isCentralDept(S.dept);
-  document.getElementById('viewNav').classList.toggle('hidden', isCentral);
-  if (!isCentral) {
-    document.querySelectorAll('.view-tab').forEach(b => b.classList.toggle('active', b.dataset.view === S.view));
-  }
+  // View nav always hidden — funnel & forecast removed
+  document.getElementById('viewNav').classList.add('hidden');
 
   renderSummaryCards();
 
   const mc = document.getElementById('mainContent');
-  if (isCentral) {
-    mc.innerHTML = renderSpendView(S.dept);
-  } else {
-    switch(S.view) {
-      case 'spend':    mc.innerHTML = renderSpendView(S.dept); break;
-      case 'funnel':   mc.innerHTML = renderFunnelView(S.dept); break;
-      case 'forecast': mc.innerHTML = renderForecastView(S.dept); break;
-    }
-  }
+  mc.innerHTML = S.dept === 'Central' ? renderConsolidatedView() : renderSpendView(S.dept);
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -617,24 +644,36 @@ function renderAll() {
 // ──────────────────────────────────────────────────────────────
 function renderSummaryCards() {
   const dept = S.dept;
-  const annPlan = getAnnualTotal(dept, 'planned');
-  const ytd     = computeYTD(dept);
-  const ytdPct  = ytd.planned > 0 ? ((ytd.actual / ytd.planned) * 100).toFixed(0)+'%' : '—';
-  const over    = ytd.actual > ytd.planned;
-  const noteCount = (S.data.varianceNotes||[]).filter(r => s(r['Department']) === dept).length;
+  let html = '';
 
-  let html = `
-    ${sc('Annual Plan', fmtRaw(annPlan), '', 'gold')}
-    ${sc('YTD Actual', fmtRaw(ytd.actual), ytdPct+' of YTD plan', over ? 'crit' : 'good')}
-  `;
-
-  if (!isCentralDept(dept)) {
-    const fc  = computeForecast(dept);
-    const tgt = getEnrollTarget(dept);
-    html += `
-      ${sc('Target Enrollments', numFmt(tgt.enrollments), numFmt(tgt.leads)+' lead target', 'gold')}
-      ${sc('Current CPL', fc.cpl ? '$'+Math.round(fc.cpl) : '—', fc.planCPL ? 'vs $'+Math.round(fc.planCPL)+' planned' : '—', fc.cpl && fc.planCPL && fc.cpl > fc.planCPL*1.15 ? 'warn' : 'good')}
-      ${sc('Variance Notes', noteCount+'', noteCount === 1 ? 'cell flagged' : 'cells flagged', noteCount > 3 ? 'warn' : noteCount > 0 ? 'gold' : '')}
+  if (dept === 'Central') {
+    // Consolidated — aggregate cards first, then per-dept YTD breakdown
+    const tot     = computeYTD('Central');
+    const totPlan = getAnnualTotal('Central', 'planned');
+    const totPct  = tot.planned > 0 ? ((tot.actual / tot.planned) * 100).toFixed(0)+'%' : '—';
+    html += sc('Total Annual Plan', fmtRaw(totPlan), '', 'gold');
+    html += sc('Total YTD Plan',    fmtRaw(tot.planned), 'for months with actuals', '');
+    html += sc('Total YTD Actual',  fmtRaw(tot.actual),  totPct + ' of YTD plan', tot.actual > tot.planned ? 'crit' : 'good');
+    // Separator then per-dept
+    html += '<div style="width:100%;flex-basis:100%;height:0;margin:0"></div>';
+    ['PG','UG','Exec'].forEach(d => {
+      const ytd  = computeYTD(d);
+      const pct  = ytd.planned > 0 ? ((ytd.actual / ytd.planned) * 100).toFixed(0)+'%' : '—';
+      const over = ytd.actual > ytd.planned;
+      html += sc(d + ' YTD Plan',   fmtRaw(ytd.planned), '', '');
+      html += sc(d + ' YTD Actual', fmtRaw(ytd.actual),  pct + ' of YTD plan', over ? 'warn' : 'good');
+    });
+  } else {
+    const annPlan   = getAnnualTotal(dept, 'planned');
+    const ytd       = computeYTD(dept);
+    const ytdPct    = ytd.planned > 0 ? ((ytd.actual / ytd.planned) * 100).toFixed(0)+'%' : '—';
+    const over      = ytd.actual > ytd.planned;
+    const noteCount = (S.data.varianceNotes||[]).filter(r => s(r['Department']) === dept).length;
+    html = `
+      ${sc('Annual Plan',   fmtRaw(annPlan),    '', 'gold')}
+      ${sc('YTD Plan',      fmtRaw(ytd.planned),'for months with actuals', '')}
+      ${sc('YTD Actual',    fmtRaw(ytd.actual),  ytdPct+' of YTD plan', over ? 'crit' : 'good')}
+      ${sc('Variance Notes', noteCount+'', noteCount === 1 ? 'note added' : 'notes added', noteCount > 3 ? 'warn' : noteCount > 0 ? 'gold' : '')}
     `;
   }
 
@@ -650,6 +689,78 @@ function sc(label, val, sub, cls) {
 }
 
 // ──────────────────────────────────────────────────────────────
+// CONSOLIDATED VIEW  (PG + UG + Exec side-by-side annual table
+//                    + aggregate monthly spend table below)
+// ──────────────────────────────────────────────────────────────
+function renderConsolidatedView() {
+  const DEPTS = ['PG','UG','Exec'];
+
+  // ── Annual cross-dept comparison table ──────────────────────
+  let h = '<div class="table-wrap" style="margin-bottom:18px"><table class="spend-table"><thead>';
+  h += '<tr>';
+  h += '<th class="ch-label sticky-col" rowspan="2">Channel</th>';
+  DEPTS.forEach(d => {
+    h += `<th colspan="3" class="annual-hdr">${d}</th>`;
+  });
+  h += '<th colspan="3" class="annual-hdr" style="background:#112D20">Total</th>';
+  h += '</tr><tr class="mrow">';
+  [...DEPTS, 'Total'].forEach(() => {
+    h += '<th class="annual-sub">Plan</th><th class="annual-sub">Actual</th><th class="annual-sub">Var</th>';
+  });
+  h += '</tr></thead><tbody>';
+
+  ALL_CHANNELS.forEach(ch => {
+    h += '<tr>';
+    h += `<td class="ch-name sticky-col">${esc(ch)}</td>`;
+    DEPTS.forEach(dept => {
+      const p  = getAnnualSpend(dept, ch, 'planned');
+      const a  = getAnnualSpend(dept, ch, 'actual');
+      const v  = (p > 0 || a > 0) ? a - p : null;
+      const vp = v !== null && p > 0 ? (v/p)*100 : null;
+      h += `<td class="amt annual-col">${fmt(p)}</td>`;
+      h += `<td class="amt annual-col">${fmt(a)}</td>`;
+      h += `<td class="var-cell annual-col">${fmtVar(v, vp)}</td>`;
+    });
+    // Total column (Central aggregate)
+    const tp  = getAnnualSpend('Central', ch, 'planned');
+    const ta  = getAnnualSpend('Central', ch, 'actual');
+    const tv  = (tp > 0 || ta > 0) ? ta - tp : null;
+    const tvp = tv !== null && tp > 0 ? (tv/tp)*100 : null;
+    h += `<td class="amt annual-col" style="background:#dceede">${fmt(tp)}</td>`;
+    h += `<td class="amt annual-col" style="background:#dceede">${fmt(ta)}</td>`;
+    h += `<td class="var-cell annual-col" style="background:#dceede">${fmtVar(tv, tvp)}</td>`;
+    h += '</tr>';
+  });
+
+  // Grand total row
+  h += '<tr class="total-row">';
+  h += '<td class="ch-name sticky-col">Total</td>';
+  DEPTS.forEach(dept => {
+    const p  = getAnnualTotal(dept, 'planned');
+    const a  = getAnnualTotal(dept, 'actual');
+    const v  = a - p;
+    const vp = p > 0 ? (v/p)*100 : null;
+    h += `<td class="amt annual-col">${fmt(p)}</td>`;
+    h += `<td class="amt annual-col">${fmt(a)}</td>`;
+    h += `<td class="var-cell annual-col">${fmtVar(v, vp)}</td>`;
+  });
+  const tp  = getAnnualTotal('Central', 'planned');
+  const ta  = getAnnualTotal('Central', 'actual');
+  const tv  = ta - tp;
+  const tvp = tp > 0 ? (tv/tp)*100 : null;
+  h += `<td class="amt annual-col" style="background:#dceede">${fmt(tp)}</td>`;
+  h += `<td class="amt annual-col" style="background:#dceede">${fmt(ta)}</td>`;
+  h += `<td class="var-cell annual-col" style="background:#dceede">${fmtVar(tv, tvp)}</td>`;
+  h += '</tr></tbody></table></div>';
+
+  // ── Monthly aggregate table ──────────────────────────────────
+  h += '<div style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:8px;padding-left:2px;">Monthly Total Across All Departments</div>';
+  h += buildSpendTable('Central');
+
+  return h;
+}
+
+// ──────────────────────────────────────────────────────────────
 // SPEND TABLE
 // ──────────────────────────────────────────────────────────────
 function renderSpendView(dept) {
@@ -657,7 +768,7 @@ function renderSpendView(dept) {
 }
 
 function buildSpendTable(dept) {
-  const chs = isCentralDept(dept) ? CENTRAL_CHANNELS : ALL_CHANNELS;
+  const chs = ALL_CHANNELS;  // All depts including Central aggregate show all 13 channels
   const TC  = 1 + 3 + MONTHS.length * 3;
 
   let h = '<div class="table-wrap"><table class="spend-table"><thead>';
@@ -687,11 +798,13 @@ function buildSpendTable(dept) {
   h += buildTotalRow(dept, chs);
   h += '</tbody></table></div>';
 
+  const isCentral = dept === 'Central';
   h += `<div class="info-box">
-    💡 <strong>Data entry:</strong> All planned budgets and actuals are entered directly in your Google Sheet
-    (<em>Planned Budget</em> and <em>Actual Expenses</em> tabs).
-    Add variance notes in the <em>Variance Notes</em> tab.
-    Click any highlighted cell above to see the commentary. Refresh the dashboard to see latest data.
+    💡 <strong>Data entry:</strong>
+    ${isCentral
+      ? 'The <strong>Central</strong> view aggregates PG + UG + Exec. Plan = <em>Central Budget</em> tab (total per channel/month). Actual = sum of all dept actuals.'
+      : `Enter allocations for <strong>${esc(dept)}</strong> in the <em>Department Allocations</em> tab (absolute $ per channel/month). Enter actuals in the <em>Actual Expenses</em> tab.`}
+    Add variance notes in the <em>Variance Notes</em> tab. Click any highlighted cell to see commentary.
   </div>`;
 
   return h;
@@ -839,11 +952,14 @@ function renderForecastView(dept) {
 
   let metrics = '<div class="metric-grid">';
   metrics += mCard('Cost per Lead (CPL)', fc.cpl ? '$'+Math.round(fc.cpl) : '—', fc.planCPL ? 'Plan: $'+Math.round(fc.planCPL) : 'Set lead targets');
-  metrics += mCard('Cost per Admission', fc.cac ? '$'+Math.round(fc.cac) : '—', fc.planCAC ? 'Plan: $'+Math.round(fc.planCAC) : 'Set enrollment targets');
+  metrics += mCard('Cost per Admission (CAC)', fc.cac ? '$'+Math.round(fc.cac) : '—', fc.planCAC ? 'Plan: $'+Math.round(fc.planCAC) : 'Set enrollment targets');
   metrics += mCard('Conv. Rate (Lead→Enroll)', fc.conv ? (fc.conv*100).toFixed(2)+'%' : '—', fc.planConv ? 'Plan: '+(fc.planConv*100).toFixed(2)+'%' : '—');
-  metrics += mCard('YTD Enrolled', numFmt(fc.ytdEnrolled), 'of '+numFmt(tgt.enrollments)+' target');
+  const enrollBadge = fc.targetMet ? ' <span style="font-size:10px;background:#D8F3DC;color:#1A6B3C;padding:2px 6px;border-radius:3px;font-weight:700;">TARGET MET</span>' : '';
+  metrics += mCard('YTD Enrolled', numFmt(fc.ytdEnrolled)+enrollBadge, 'of '+numFmt(tgt.enrollments)+' target');
   metrics += mCard('YTD Leads', numFmt(fc.ytdLeads), 'of '+numFmt(tgt.targetLeads)+' target');
-  metrics += mCard('Forecast Remaining Spend', fc.fcSpend ? fmtRaw(fc.fcSpend) : 'Needs data', 'to close remaining target');
+  const fcLabel = fc.targetMet ? 'Target already met — no additional spend needed'
+    : fc.fcSpend !== null ? fmtRaw(fc.fcSpend) : 'Needs enrollment data';
+  metrics += mCard('Forecast Remaining Spend', fcLabel, fc.targetMet ? '' : 'to close remaining '+numFmt(fc.remaining)+' students');
   metrics += '</div>';
 
   // Months with actuals
@@ -862,20 +978,24 @@ function renderForecastView(dept) {
 
   let sumP = 0, sumAF = 0;
   MONTHS.forEach(m => {
-    const isAct  = actualMonths.has(m.key);
+    const isAct   = actualMonths.has(m.key);
     const planAmt = getMonthTotal(dept, m.key, 'planned');
     let afAmt = null, badge = '';
     if (isAct) {
       afAmt = getMonthTotal(dept, m.key, 'actual');
       badge = '<span class="badge badge-actual">Actual</span>';
-    } else if (fc.fcSpend !== null && remPlanTotal > 0) {
+    } else if (fc.targetMet) {
+      // Target already exceeded — use plan as best estimate for remaining months
+      afAmt = planAmt;
+      badge = '<span class="badge badge-forecast" title="Target met — using plan as estimate">Plan</span>';
+    } else if (fc.fcSpend !== null && fc.fcSpend > 0 && remPlanTotal > 0) {
       afAmt = fc.fcSpend * (planAmt / remPlanTotal);
       badge = '<span class="badge badge-forecast">Forecast</span>';
     }
-    const vAbs = afAmt !== null && planAmt > 0 ? afAmt - planAmt : null;
-    const vPct = vAbs !== null && planAmt > 0 ? (vAbs/planAmt)*100 : null;
+    const vAbs = (afAmt !== null && !fc.targetMet) ? afAmt - planAmt : null;
+    const vPct = vAbs !== null && planAmt > 0 ? (vAbs / planAmt) * 100 : null;
     sumP  += planAmt;
-    sumAF += afAmt || 0;
+    sumAF += afAmt !== null ? afAmt : 0;
     tbl += `<tr class="${isAct ? 'is-actual' : afAmt !== null ? 'is-forecast' : ''}">`;
     tbl += `<td>${m.label}${badge}</td><td>${fmtRaw(planAmt)}</td>`;
     tbl += `<td>${afAmt !== null ? fmtRaw(afAmt) : '⏳'}</td>`;
@@ -883,8 +1003,8 @@ function renderForecastView(dept) {
     tbl += '</tr>';
   });
   const tV = sumAF - sumP;
-  const tVP = sumP > 0 ? (tV/sumP)*100 : null;
-  tbl += `<tfoot><tr><td>Annual Total</td><td>${fmtRaw(sumP)}</td><td>${fmtRaw(sumAF)}</td><td>${fmtVar(tV,tVP)}</td></tr></tfoot>`;
+  const tVP = sumP > 0 ? (tV / sumP) * 100 : null;
+  tbl += `<tfoot><tr><td>Annual Total</td><td>${fmtRaw(sumP)}</td><td>${fmtRaw(sumAF)}</td><td>${fmtVar(tV, tVP)}</td></tr></tfoot>`;
   tbl += '</tbody></table></div>';
 
   return metrics + tbl;
@@ -904,8 +1024,8 @@ function mCard(label, val, sub) {
 function openCell(evt, dept, channel, monthKey) {
   evt && evt.stopPropagation();
 
-  const plan   = getSpend(dept, channel, monthKey, 'planned');
-  const actual = getSpend(dept, channel, monthKey, 'actual');
+  const plan   = getDeptPlanned(dept, channel, monthKey);
+  const actual = getDeptActual(dept, channel, monthKey);
   const flag   = getFlag(plan, actual, dept, channel);
   const note   = getNote(dept, channel, monthKey);
   const mo     = MONTHS.find(m => m.key === monthKey) || {label: monthKey};
@@ -945,9 +1065,9 @@ function openCell(evt, dept, channel, monthKey) {
       : `<div class="note-box empty">No note added yet.</div>`
     }
     <div class="panel-hint">
-      📝 <strong>To add a note:</strong><br/>
-      Go to your Google Sheet → <em>Variance Notes</em> tab → add a row:<br/>
-      <code style="font-size:10.5px;background:#fff;padding:1px 4px;border-radius:3px;">${esc(dept)} | ${esc(channel)} | ${monthKey} | your note here</code>
+      📝 <strong>To add a note:</strong> Go to your Google Sheet → <em>Variance Notes</em> tab → add a row:<br/>
+      <code style="font-size:10.5px;background:#fff;padding:1px 4px;border-radius:3px;">${esc(dept)} | ${esc(channel)} | ${monthKey} | your note here</code><br/>
+      ${dept === 'Central' ? '<em style="font-size:10px;color:#8a6010">Tip: Enter the dept (PG/UG/Exec) that caused the variance, not "Central"</em>' : ''}
     </div>
   </div>`;
 
@@ -980,8 +1100,8 @@ function showAllNotes() {
       body += `<div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-400);padding:8px 0 4px">${moLabel}</div>`;
       byMonth[mo].forEach(n => {
         const ch     = s(n['Channel']);
-        const plan   = getSpend(dept, ch, mo, 'planned');
-        const actual = getSpend(dept, ch, mo, 'actual');
+        const plan   = getDeptPlanned(dept, ch, mo);
+        const actual = getDeptActual(dept, ch, mo);
         const flag   = getFlag(plan, actual, dept, ch);
         const fCls   = flag === 'crit' ? 'crit' : flag === 'warn' ? 'warn' : '';
         body += `<div class="note-list-item" onclick="openCell(null,'${esc(dept)}','${esc(ch)}','${mo}')">
@@ -1057,7 +1177,7 @@ async function loadAndRender() {
     document.getElementById('lastUpdated').textContent = 'Updated ' + new Date(data.timestamp).toLocaleTimeString();
   } catch(e) {
     toast('Load failed: ' + e.message, true);
-    if (!S.data) S.data = {planned:[],actual:[],enrollTargets:[],enrollActuals:[],varianceNotes:[],alerts:[],feeStructure:[]};
+    if (!S.data) S.data = {centralBudget:[],allocations:[],actual:[],enrollTargets:[],enrollActuals:[],varianceNotes:[],alerts:[],feeStructure:[]};
     if (!S.depts.length) S.depts = ['PG','UG','Exec','Central'];
     if (!S.dept) S.dept = S.depts[0];
   } finally {
